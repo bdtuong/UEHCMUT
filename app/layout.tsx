@@ -10,10 +10,9 @@ const inter = Inter({ subsets: ["latin"], variable: "--font-inter" })
 const playfair = Playfair_Display({ subsets: ["latin"], variable: "--font-serif" })
 
 export const metadata: Metadata = {
-  title: "Hoi An Lanterns - Authentic Vietnamese Heritage",
+  title: "LanternVerse",
   description:
-    "Discover the timeless beauty of Vietnam through authentic, handcrafted Hoi An lanterns. Each piece carries the soul of Vietnamese heritage.",
-    generator: 'v0.dev'
+    "Discover the timeless beauty of Vietnam through authentic, handcrafted lanterns. Each piece carries the soul of Vietnamese heritage.",
 }
 
 export default function RootLayout({
