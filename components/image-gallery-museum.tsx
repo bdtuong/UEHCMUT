@@ -1,11 +1,14 @@
 'use client'
 
-import React, { useRef, useEffect, useMemo } from 'react'
+import React, { useRef, useEffect, useMemo, useState } from 'react'
 import { Canvas, useThree, useLoader, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { TextureLoader } from 'three'
 import PlantModel from './ui/plant-model'
 import BarrierModel from './ui/barrier-model'
+import { OrbitControls } from '@react-three/drei'
+import ArrowControls from './ArrowControls'
+
 // Interface mô tả thông tin của một bức tranh
 interface ImageData {
   id: string
@@ -129,10 +132,7 @@ const SAMPLE_IMAGES: ImageData[] = [
     position: [5.01, 1.5, 10],
     size: [3, 2],
   },
-
-
 ]
-
 
 // Component khung tranh hiển thị ảnh + viền khung
 const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
@@ -145,34 +145,31 @@ const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
 
   const rotation = new THREE.Euler();
 
-if (Math.abs(z) < 20 && x < 0) {
-  // Center wall, mặt trái → nhìn ra tường chính trái
-  rotation.y = Math.PI / 2;
-} else if (Math.abs(z) < 20 && x > 0) {
-  // Center wall, mặt phải → nhìn ra tường chính phải
-  rotation.y = -Math.PI / 2;
-} else if (Math.abs(x) < 2 && z < 0) {
-  // Center wall, mặt sau → nhìn ra tường chính sau
-  rotation.y = Math.PI;
-} else if (Math.abs(x) < 2 && z > 0) {
-  // Center wall, mặt trước → nhìn ra tường chính trước
-  rotation.y = 0;
-} else if (z > 39) {
-  // Tường chính trước → nhìn vào -Z
-  rotation.y = Math.PI;
-} else if (z < -39) {
-  // Tường chính sau → nhìn vào +Z
-  rotation.y = 0;
-} else if (x > 39) {
-  // Tường phải → nhìn vào -X
-  rotation.y = -Math.PI / 2;
-} else if (x < -39) {
-  // Tường trái → nhìn vào +X
-  rotation.y = Math.PI / 2;
-}
-
-
-
+  if (Math.abs(z) < 20 && x < 0) {
+    // Center wall, mặt trái → nhìn ra tường chính trái
+    rotation.y = Math.PI / 2;
+  } else if (Math.abs(z) < 20 && x > 0) {
+    // Center wall, mặt phải → nhìn ra tường chính phải
+    rotation.y = -Math.PI / 2;
+  } else if (Math.abs(x) < 2 && z < 0) {
+    // Center wall, mặt sau → nhìn ra tường chính sau
+    rotation.y = Math.PI;
+  } else if (Math.abs(x) < 2 && z > 0) {
+    // Center wall, mặt trước → nhìn ra tường chính trước
+    rotation.y = 0;
+  } else if (z > 39) {
+    // Tường chính trước → nhìn vào -Z
+    rotation.y = Math.PI;
+  } else if (z < -39) {
+    // Tường chính sau → nhìn vào +Z
+    rotation.y = 0;
+  } else if (x > 39) {
+    // Tường phải → nhìn vào -X
+    rotation.y = -Math.PI / 2;
+  } else if (x < -39) {
+    // Tường trái → nhìn vào +X
+    rotation.y = Math.PI / 2;
+  }
 
   return (
     <group position={imageData.position} rotation={rotation}>
@@ -203,41 +200,110 @@ if (Math.abs(z) < 20 && x < 0) {
   )
 }
 
+// Mobile Controls Component
+const MobileControls: React.FC<{ 
+  onMove: (direction: string, pressed: boolean) => void;
+  isMobile: boolean;
+}> = ({ onMove, isMobile }) => {
+  if (!isMobile) return null;
 
+  const buttonStyle = "w-12 h-12 bg-black bg-opacity-50 text-white rounded-full flex items-center justify-center text-lg font-bold active:bg-opacity-70 select-none touch-manipulation";
 
-// Camera có thể xoay 360 độ quanh trung tâm phòng
-const FreeMovementControls: React.FC<{ centerWallRef: React.RefObject<THREE.Mesh> }> = ({ centerWallRef }) => {
+  return (
+    <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end pointer-events-none">
+      {/* Movement Controls */}
+      <div className="relative pointer-events-auto">
+        <div className="grid grid-cols-3 gap-2 w-36">
+          <div></div>
+          <button
+            className={buttonStyle}
+            onTouchStart={() => onMove('w', true)}
+            onTouchEnd={() => onMove('w', false)}
+            onMouseDown={() => onMove('w', true)}
+            onMouseUp={() => onMove('w', false)}
+            onMouseLeave={() => onMove('w', false)}
+          >
+            ↑
+          </button>
+          <div></div>
+          
+          <button
+            className={buttonStyle}
+            onTouchStart={() => onMove('a', true)}
+            onTouchEnd={() => onMove('a', false)}
+            onMouseDown={() => onMove('a', true)}
+            onMouseUp={() => onMove('a', false)}
+            onMouseLeave={() => onMove('a', false)}
+          >
+            ←
+          </button>
+          <button
+            className={buttonStyle}
+            onTouchStart={() => onMove('s', true)}
+            onTouchEnd={() => onMove('s', false)}
+            onMouseDown={() => onMove('s', true)}
+            onMouseUp={() => onMove('s', false)}
+            onMouseLeave={() => onMove('s', false)}
+          >
+            ↓
+          </button>
+          <button
+            className={buttonStyle}
+            onTouchStart={() => onMove('d', true)}
+            onTouchEnd={() => onMove('d', false)}
+            onMouseDown={() => onMove('d', true)}
+            onMouseUp={() => onMove('d', false)}
+            onMouseLeave={() => onMove('d', false)}
+          >
+            →
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+const FreeMovementControls: React.FC<{
+  centerWallRef: React.RefObject<THREE.Mesh>
+  mobileControls: React.MutableRefObject<{ [key: string]: boolean }>
+}> = ({ centerWallRef, mobileControls }) => {
   const { camera, gl } = useThree()
   const keys = useRef<{ [key: string]: boolean }>({})
   const velocity = useRef(new THREE.Vector3())
   const direction = new THREE.Vector3()
   const pitch = useRef(0)
   const yaw = useRef(0)
-  const isPointerLocked = useRef(false)
+
+  const isDragging = useRef(false)
+  const lastMouse = useRef<{ x: number; y: number }>({ x: 0, y: 0 })
 
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => (keys.current[e.key.toLowerCase()] = true)
-    const handleKeyUp = (e: KeyboardEvent) => (keys.current[e.key.toLowerCase()] = false)
+    camera.rotation.order = 'YXZ'
+  }, [camera])
 
-    document.addEventListener('keydown', handleKeyDown)
-    document.addEventListener('keyup', handleKeyUp)
+  // Keyboard input
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      keys.current[e.key.toLowerCase()] = true
+    }
+    const handleKeyUp = (e: KeyboardEvent) => {
+      keys.current[e.key.toLowerCase()] = false
+    }
+    window.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('keyup', handleKeyUp)
     return () => {
-      document.removeEventListener('keydown', handleKeyDown)
-      document.removeEventListener('keyup', handleKeyUp)
+      window.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('keyup', handleKeyUp)
     }
   }, [])
 
+  // Mouse + Touch drag to rotate camera
   useEffect(() => {
     const canvas = gl.domElement
 
-    const onClick = () => {
-      canvas.requestPointerLock()
-    }
-
-    const onMouseMove = (e: MouseEvent) => {
-      if (!isPointerLocked.current) return
-      yaw.current -= e.movementX * 0.002
-      pitch.current -= e.movementY * 0.002
+    const updateRotation = (deltaX: number, deltaY: number) => {
+      yaw.current -= deltaX * 0.002
+      pitch.current -= deltaY * 0.002
       pitch.current = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitch.current))
 
       const quaternion = new THREE.Quaternion()
@@ -245,60 +311,95 @@ const FreeMovementControls: React.FC<{ centerWallRef: React.RefObject<THREE.Mesh
       camera.quaternion.copy(quaternion)
     }
 
-    const onPointerLockChange = () => {
-      isPointerLocked.current = document.pointerLockElement === canvas
+    // Mouse events
+    const onMouseDown = (e: MouseEvent) => {
+      isDragging.current = true
+      lastMouse.current = { x: e.clientX, y: e.clientY }
+    }
+    const onMouseUp = () => {
+      isDragging.current = false
+    }
+    const onMouseMove = (e: MouseEvent) => {
+      if (!isDragging.current) return
+      const deltaX = e.clientX - lastMouse.current.x
+      const deltaY = e.clientY - lastMouse.current.y
+      lastMouse.current = { x: e.clientX, y: e.clientY }
+      updateRotation(deltaX, deltaY)
     }
 
-    canvas.addEventListener('click', onClick)
-    document.addEventListener('mousemove', onMouseMove)
-    document.addEventListener('pointerlockchange', onPointerLockChange)
+    // Touch events
+    const onTouchStart = (e: TouchEvent) => {
+      isDragging.current = true
+      const touch = e.touches[0]
+      lastMouse.current = { x: touch.clientX, y: touch.clientY }
+    }
+    const onTouchEnd = () => {
+      isDragging.current = false
+    }
+    const onTouchMove = (e: TouchEvent) => {
+      if (!isDragging.current) return
+      const touch = e.touches[0]
+      const deltaX = touch.clientX - lastMouse.current.x
+      const deltaY = touch.clientY - lastMouse.current.y
+      lastMouse.current = { x: touch.clientX, y: touch.clientY }
+      updateRotation(deltaX, deltaY)
+    }
+
+    // Add listeners
+    canvas.addEventListener('mousedown', onMouseDown)
+    window.addEventListener('mouseup', onMouseUp)
+    window.addEventListener('mousemove', onMouseMove)
+
+    canvas.addEventListener('touchstart', onTouchStart)
+    window.addEventListener('touchend', onTouchEnd)
+    window.addEventListener('touchmove', onTouchMove)
 
     return () => {
-      canvas.removeEventListener('click', onClick)
-      document.removeEventListener('mousemove', onMouseMove)
-      document.removeEventListener('pointerlockchange', onPointerLockChange)
-    }
-  }, [camera, gl])
+      canvas.removeEventListener('mousedown', onMouseDown)
+      window.removeEventListener('mouseup', onMouseUp)
+      window.removeEventListener('mousemove', onMouseMove)
 
+      canvas.removeEventListener('touchstart', onTouchStart)
+      window.removeEventListener('touchend', onTouchEnd)
+      window.removeEventListener('touchmove', onTouchMove)
+    }
+  }, [gl, camera])
+
+  // WASD movement
   useFrame((_, delta) => {
-  const speed = 5
-  direction.set(0, 0, 0)
+    const speed = 5
+    direction.set(0, 0, 0)
 
-  if (keys.current['w']) direction.z -= 1
-  if (keys.current['s']) direction.z += 1
-  if (keys.current['a']) direction.x -= 1
-  if (keys.current['d']) direction.x += 1
+    const activeKeys = { ...keys.current, ...mobileControls.current }
 
-  direction.normalize()
-  direction.applyQuaternion(camera.quaternion)
-  velocity.current.copy(direction).multiplyScalar(speed * delta)
+    if (activeKeys['w']) direction.z -= 1
+    if (activeKeys['s']) direction.z += 1
+    if (activeKeys['a']) direction.x -= 1
+    if (activeKeys['d']) direction.x += 1
 
-  const nextPosition = camera.position.clone().add(velocity.current)
+    direction.normalize()
+    direction.applyQuaternion(camera.quaternion)
 
-  const wall = centerWallRef.current
-  if (wall) {
-    wall.geometry.computeBoundingBox()
-    wall.updateMatrixWorld(true)
-    const box = wall.geometry.boundingBox!.clone().applyMatrix4(wall.matrixWorld)
+    velocity.current.copy(direction).multiplyScalar(speed * delta)
+    const nextPosition = camera.position.clone().add(velocity.current)
 
-    // Thêm buffer nhỏ để tránh đi xuyên
-    const buffer = 0.3
-    const paddedBox = box.clone().expandByScalar(buffer)
-
-    if (paddedBox.containsPoint(nextPosition)) {
-      // 🚫 Không di chuyển nếu va chạm
-      return
+    // Collision detection
+    const wall = centerWallRef.current
+    if (wall) {
+      wall.geometry.computeBoundingBox()
+      wall.updateMatrixWorld(true)
+      const box = wall.geometry.boundingBox!.clone().applyMatrix4(wall.matrixWorld)
+      const paddedBox = box.clone().expandByScalar(0.3)
+      if (paddedBox.containsPoint(nextPosition)) return
     }
-  }
 
-  // ✅ Di chuyển nếu không va chạm
-  camera.position.copy(nextPosition)
-  camera.position.y = THREE.MathUtils.clamp(camera.position.y, -4.5, 8)
-})
-
+    camera.position.copy(nextPosition)
+    camera.position.y = THREE.MathUtils.clamp(camera.position.y, -4.5, 8)
+  })
 
   return null
 }
+
 
 
 
@@ -310,12 +411,9 @@ const WallBackground = () => {
   floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping
   floorTexture.repeat.set(8, 8)
 
-  const wallTexture = useLoader(TextureLoader, '/wall-1.jpg')
+  const wallTexture = useLoader(TextureLoader, '/wall-4.jpg')
   wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping
   wallTexture.repeat.set(roomSize / 10, roomHeight / 2.5)
-
-
-  
 
   return (
     <>
@@ -376,10 +474,10 @@ const WallBackground = () => {
           </group>
         ))
       )}
-
     </>
   )
 }
+
 const CenterWall = React.forwardRef<THREE.Mesh>((_, ref) => {
   const wallTexture = useLoader(TextureLoader, '/wall-2.jpg')
 
@@ -395,43 +493,131 @@ const CenterWall = React.forwardRef<THREE.Mesh>((_, ref) => {
   )
 })
 
-
-
 // Component chính
 const Gallery3D: React.FC = () => {
   const centerWallRef = useRef<THREE.Mesh>(null!)
+  const mobileControlsRef = useRef<{ [key: string]: boolean }>({})
+  const [isMobile, setIsMobile] = useState(false)
+  const [showGallery, setShowGallery] = useState(false)
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 768 || 'ontouchstart' in window)
+    }
+    
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  const handleMobileMove = (direction: string, pressed: boolean) => {
+    mobileControlsRef.current[direction] = pressed
+  }
+
+  const scrollToGallery = () => {
+    setShowGallery(true)
+  }
+
+  if (!showGallery) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 relative flex items-center justify-center">
+        {/* Subtle animated background */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div className="absolute top-1/4 left-1/3 w-2 h-2 bg-amber-400 rounded-full opacity-60 animate-pulse"></div>
+          <div className="absolute top-2/3 right-1/4 w-1 h-1 bg-orange-400 rounded-full opacity-40 animate-pulse"></div>
+          <div className="absolute bottom-1/3 left-1/4 w-1.5 h-1.5 bg-yellow-300 rounded-full opacity-50 animate-pulse"></div>
+        </div>
+
+        {/* Main content */}
+        <div className="relative z-10 text-center px-6 max-w-2xl mx-auto">
+          <div className="space-y-8">
+            {/* Simple title */}
+            <div className="space-y-6">
+              <h1 className="text-6xl md:text-8xl font-bold text-white tracking-tight">
+                Lantern
+                <span className="block text-amber-400">World</span>
+              </h1>
+              
+              <p className="text-xl md:text-2xl text-slate-300 font-light">
+                Bảo tàng nghệ thuật 3D
+              </p>
+            </div>
+
+            {/* Simple description */}
+            <p className="text-slate-400 text-lg max-w-md mx-auto leading-relaxed">
+              Khám phá thế giới đèn lồng huyền diệu trong không gian 3D tương tác
+            </p>
+
+            {/* Call to action */}
+            <button
+              onClick={scrollToGallery}
+              className="group bg-amber-500 hover:bg-amber-400 text-black font-semibold py-4 px-12 rounded-full text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-amber-500/25"
+            >
+              Khám phá ngay
+            </button>
+            
+            <p className="text-slate-500 text-sm mt-4">
+              {isMobile ? "Chạm để điều khiển" : "WASD để di chuyển"}
+            </p>
+          </div>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="w-full h-screen relative">
       <Canvas camera={{ fov: 75, near: 0.1, far: 1000, position: [2, 1.5, 25] }}>
-        <ambientLight intensity={0.9} color="#fffaf0" />
+        <ambientLight intensity={1.2} color="#FFE8C2" />
         <pointLight position={[10, 10, 10]} intensity={0.5} />
         <CenterWall ref={centerWallRef}/>
-
-        <FreeMovementControls centerWallRef={centerWallRef}/>
+        {/* <OrbitControls
+          enablePan={false}
+          enableZoom={false}
+          enableRotate={true}
+          rotateSpeed={0.5}
+        /> */}
+        <FreeMovementControls 
+          centerWallRef={centerWallRef}
+          mobileControls={mobileControlsRef}
+        />
         <WallBackground />
 
         {/* Cây cảnh */}
-        <PlantModel position={[-46, -5, -46]} /> // Trái sau
-        <PlantModel position={[46, -5, -46]} />  // Phải sau
-        <PlantModel position={[-46, -5, 46]} />  // Trái trước
-        <PlantModel position={[46, -5, 46]} />   // Phải trước
+        <PlantModel position={[-46, -5, -46]} />
+        <PlantModel position={[46, -5, -46]} />
+        <PlantModel position={[-46, -5, 46]} />
+        <PlantModel position={[46, -5, 46]} />
         <BarrierModel position={[0, -5, 16]} />
         <BarrierModel position={[0, -5, -27]} />
-
 
         {/* Tranh */}
         {SAMPLE_IMAGES.map((imageData) => (
           <ImageFrame key={imageData.id} imageData={imageData} />
-          
         ))}
-        
-
       </Canvas>
-
+      
       <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded-lg">
-        <p className="text-sm">Click and drag horizontally to look around</p>
+        <p className="text-sm">
+          {isMobile 
+            ? "Khám phá bảo tàng đèn lồng — sử dụng các nút điều khiển bên dưới để di chuyển"
+            : "Khám phá bảo tàng đèn lồng — nhấp chuột, nhìn xung quanh và di chuyển bằng W A S D"
+          }
+        </p>
       </div>
+
+      {/* Back to intro button */}
+      <button
+        onClick={() => setShowGallery(false)}
+        className="absolute top-4 right-4 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg transition-colors duration-300"
+      >
+        ← Quay lại giới thiệu
+      </button>
+
+      <MobileControls 
+        onMove={handleMobileMove}
+        isMobile={isMobile}
+      />
     </div>
   )
 }
