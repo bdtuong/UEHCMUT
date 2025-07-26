@@ -18,149 +18,132 @@ interface ImageData {
   imageUrl: string
   position: [number, number, number]
   size: [number, number]
+  rotation?: [number, number, number]
 }
 
-// Mảng chỉ chứa các tranh để trưng bày
-const SAMPLE_IMAGES: ImageData[] = [
-  {
-    id: '1',
-    title: 'Wall Center',
-    artist: 'Artist A',
-    description: 'Center of back wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [0, 1.5, -49.9],
-    size: [5, 3],
-  },
-  {
-    id: '2',
-    title: 'Left 1',
-    artist: 'Artist B',
-    description: 'Left wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [-49.9, 1.5, -20],
-    size: [4, 2.5],
-  },
-  {
-    id: '3',
-    title: 'Left 2',
-    artist: 'Artist C',
-    description: 'Left wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [-49.9, 1.5, 20],
-    size: [4, 2.5],
-  },
-  {
-    id: '4',
-    title: 'Right 1',
-    artist: 'Artist D',
-    description: 'Right wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [49.9, 1.5, -20],
-    size: [4, 2.5],
-  },
-  {
-    id: '5',
-    title: 'Right 2',
-    artist: 'Artist E',
-    description: 'Right wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [49.9, 1.5, 20],
-    size: [4, 2.5],
-  },
-  {
-    id: '6',
-    title: 'Front Center',
-    artist: 'Artist F',
-    description: 'Front wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [0, 1.5, 49.9],
-    size: [5, 3],
-  },
-  {
-    id: '7',
-    title: 'Center Short Back',
-    artist: 'Artist G',
-    description: 'Short back side of center wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [0, 0.8, -20.01],
-    size: [6, 3.5],
-  },
-  {
-    id: '8',
-    title: 'Center Short Front',
-    artist: 'Artist H',
-    description: 'Short front side of center wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [0, 0.8, 20.01],
-    size: [6, 3.5],
-  },
-  {
-    id: '9',
-    title: 'Center Long Left 1',
-    artist: 'Artist I',
-    description: 'Left side of center wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [-5.01, 1.5, -10],
-    size: [3, 2],
-  },
-  {
-    id: '10',
-    title: 'Center Long Left 2',
-    artist: 'Artist J',
-    description: 'Left side of center wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [-5.01, 1.5, 10],
-    size: [3, 2],
-  },
-  {
-    id: '11',
-    title: 'Center Long Right 1',
-    artist: 'Artist K',
-    description: 'Right side of center wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [5.01, 1.5, -10],
-    size: [3, 2],
-  },
-  {
-    id: '12',
-    title: 'Center Long Right 2',
-    artist: 'Artist L',
-    description: 'Right side of center wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [5.01, 1.5, 10],
-    size: [3, 2],
-  },
-]
+// Interface cho art box
+interface ArtBox {
+  id: string
+  position: [number, number, number]
+  rotation: [number, number, number]
+  size: [number, number, number] // width, height, depth
+}
+
+// Tạo 30 art boxes ngẫu nhiên trong phòng
+const generateArtBoxes = (): ArtBox[] => {
+  const boxes: ArtBox[] = []
+  const roomSize = 90 // Slightly smaller than room walls to keep boxes inside
+  
+  for (let i = 0; i < 30; i++) {
+    const width = Math.random() * 4 + 2 // 2-6
+    const height = Math.random() * 3 + 4 // 4-7
+    const depth = Math.random() * 2 + 0.5 // 0.5-2.5
+    
+    // Random position within room bounds
+    const x = (Math.random() - 0.5) * roomSize
+    const z = (Math.random() - 0.5) * roomSize
+    const y = height / 2 - 5 // Bottom aligned with floor
+    
+    // Random rotation
+    const rotY = Math.random() * Math.PI * 2
+    
+    boxes.push({
+      id: `box-${i}`,
+      position: [x, y, z],
+      rotation: [0, rotY, 0],
+      size: [width, height, depth]
+    })
+  }
+  
+  return boxes
+}
+
+// Generate art boxes
+const ART_BOXES = generateArtBoxes()
+
+// Tạo tranh cho tất cả các mặt của boxes
+const generateImageData = (): ImageData[] => {
+  const images: ImageData[] = []
+  let imageId = 1
+  
+  ART_BOXES.forEach((box, boxIndex) => {
+    const [x, y, z] = box.position
+    const [rotX, rotY, rotZ] = box.rotation
+    const [width, height, depth] = box.size
+    
+    // Create paintings for each face of the box
+    const faces = [
+      // Front face
+      {
+        position: [x, y, z + depth/2 + 0.01] as [number, number, number],
+        size: [width * 0.8, height * 0.6] as [number, number],
+        rotation: [0, rotY, 0] as [number, number, number]
+      },
+      // Back face
+      {
+        position: [x, y, z - depth/2 - 0.01] as [number, number, number],
+        size: [width * 0.8, height * 0.6] as [number, number],
+        rotation: [0, rotY + Math.PI, 0] as [number, number, number]
+      },
+      // Left face
+      {
+        position: [x - width/2 - 0.01, y, z] as [number, number, number],
+        size: [depth * 0.8, height * 0.6] as [number, number],
+        rotation: [0, rotY + Math.PI/2, 0] as [number, number, number]
+      },
+      // Right face
+      {
+        position: [x + width/2 + 0.01, y, z] as [number, number, number],
+        size: [depth * 0.8, height * 0.6] as [number, number],
+        rotation: [0, rotY - Math.PI/2, 0] as [number, number, number]
+      }
+    ]
+    
+    faces.forEach((face, faceIndex) => {
+      images.push({
+        id: `${imageId}`,
+        title: `Artwork ${imageId}`,
+        artist: `Artist ${String.fromCharCode(65 + (imageId % 26))}`,
+        description: `Beautiful lantern artwork on box ${boxIndex + 1}, face ${faceIndex + 1}.`,
+        imageUrl: '/mock-img.jpg',
+        position: face.position,
+        size: face.size,
+        rotation: face.rotation
+      })
+      imageId++
+    })
+  })
+  
+  return images
+}
+
+const SAMPLE_IMAGES = generateImageData()
 
 const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
   const { camera } = useThree()
   const texture = useLoader(TextureLoader, imageData.imageUrl)
   const [width, height] = imageData.size
-  const frameThickness = 0.05
+  const frameThickness = 0.03
   const frameColor = '#D4AF37'
   const [showInfo, setShowInfo] = useState(false)
 
   const [x, y, z] = imageData.position
   const position = new THREE.Vector3(x, y, z)
 
-  const rotation = new THREE.Euler()
+  // Use provided rotation or calculate based on position
+  const rotation = imageData.rotation 
+    ? new THREE.Euler(...imageData.rotation)
+    : new THREE.Euler()
 
-  if (Math.abs(z) < 20 && x < 0) rotation.y = Math.PI / 2
-  else if (Math.abs(z) < 20 && x > 0) rotation.y = -Math.PI / 2
-  else if (Math.abs(x) < 2 && z < 0) rotation.y = Math.PI
-  else if (Math.abs(x) < 2 && z > 0) rotation.y = 0
-  else if (z > 39) rotation.y = Math.PI
-  else if (z < -39) rotation.y = 0
-  else if (x > 39) rotation.y = -Math.PI / 2
-  else if (x < -39) rotation.y = Math.PI / 2
-
+  // Kiểm tra khoảng cách camera
   useFrame(() => {
     const distance = camera.position.distanceTo(position)
-    setShowInfo(distance < 6)
+    setShowInfo(distance < 4)
   })
 
   return (
     <group position={imageData.position} rotation={rotation}>
+      {/* Khung viền */}
       <mesh position={[0, height / 2 + frameThickness / 2, -0.01]}>
         <boxGeometry args={[width + 2 * frameThickness, frameThickness, 0.02]} />
         <meshStandardMaterial color={frameColor} />
@@ -177,13 +160,17 @@ const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
         <boxGeometry args={[frameThickness, height, 0.02]} />
         <meshStandardMaterial color={frameColor} />
       </mesh>
+
+      {/* Ảnh chính */}
       <mesh>
         <planeGeometry args={imageData.size} />
-        <meshStandardMaterial map={texture} side={THREE.DoubleSide} />
+        <meshStandardMaterial map={texture} side={THREE.DoubleSide}/>
       </mesh>
+
+      {/* Hiện thông tin nếu đủ gần */}
       {showInfo && (
-        <Html distanceFactor={10} position={[0, height / 2 + 0.5, 0]} transform sprite>
-          <div className="bg-white/90 backdrop-blur text-black p-2 rounded-md shadow-lg max-w-2xl text-sm">
+        <Html distanceFactor={10} position={[0, height / 2 + 0.3, 0]} transform sprite>
+          <div className="bg-white/90 backdrop-blur text-black p-2 rounded-md shadow-lg max-w-xs text-xs">
             <p className="font-semibold">{imageData.title}</p>
             <p className="italic text-gray-600">{imageData.artist}</p>
             <p>{imageData.description}</p>
@@ -194,16 +181,18 @@ const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
   )
 }
 
-const MobileControls: React.FC<{
-  onMove: (direction: string, pressed: boolean) => void
-  isMobile: boolean
+// Mobile Controls Component
+const MobileControls: React.FC<{ 
+  onMove: (direction: string, pressed: boolean) => void;
+  isMobile: boolean;
 }> = ({ onMove, isMobile }) => {
-  if (!isMobile) return null
+  if (!isMobile) return null;
 
-  const buttonStyle = "w-12 h-12 bg-black bg-opacity-50 text-white rounded-full flex items-center justify-center text-lg font-bold active:bg-opacity-70 select-none touch-manipulation"
+  const buttonStyle = "w-12 h-12 bg-black bg-opacity-50 text-white rounded-full flex items-center justify-center text-lg font-bold active:bg-opacity-70 select-none touch-manipulation";
 
   return (
     <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end pointer-events-none">
+      {/* Movement Controls */}
       <div className="relative pointer-events-auto">
         <div className="grid grid-cols-3 gap-2 w-36">
           <div></div>
@@ -218,6 +207,7 @@ const MobileControls: React.FC<{
             ↑
           </button>
           <div></div>
+          
           <button
             className={buttonStyle}
             onTouchStart={() => onMove('a', true)}
@@ -251,13 +241,13 @@ const MobileControls: React.FC<{
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
 const FreeMovementControls: React.FC<{
-  centerWallRef: React.RefObject<THREE.Mesh>
+  artBoxesRef: React.RefObject<THREE.Group[]>
   mobileControls: React.MutableRefObject<{ [key: string]: boolean }>
-}> = ({ centerWallRef, mobileControls }) => {
+}> = ({ artBoxesRef, mobileControls }) => {
   const { camera, gl } = useThree()
   const keys = useRef<{ [key: string]: boolean }>({})
   const velocity = useRef(new THREE.Vector3())
@@ -272,6 +262,7 @@ const FreeMovementControls: React.FC<{
     camera.rotation.order = 'YXZ'
   }, [camera])
 
+  // Keyboard input
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       keys.current[e.key.toLowerCase()] = true
@@ -287,6 +278,7 @@ const FreeMovementControls: React.FC<{
     }
   }, [])
 
+  // Mouse + Touch drag to rotate camera
   useEffect(() => {
     const canvas = gl.domElement
 
@@ -300,6 +292,7 @@ const FreeMovementControls: React.FC<{
       camera.quaternion.copy(quaternion)
     }
 
+    // Mouse events
     const onMouseDown = (e: MouseEvent) => {
       isDragging.current = true
       lastMouse.current = { x: e.clientX, y: e.clientY }
@@ -315,6 +308,7 @@ const FreeMovementControls: React.FC<{
       updateRotation(deltaX, deltaY)
     }
 
+    // Touch events
     const onTouchStart = (e: TouchEvent) => {
       isDragging.current = true
       const touch = e.touches[0]
@@ -332,6 +326,7 @@ const FreeMovementControls: React.FC<{
       updateRotation(deltaX, deltaY)
     }
 
+    // Add listeners
     canvas.addEventListener('mousedown', onMouseDown)
     window.addEventListener('mouseup', onMouseUp)
     window.addEventListener('mousemove', onMouseMove)
@@ -364,6 +359,7 @@ const FreeMovementControls: React.FC<{
 
     direction.normalize()
 
+    // 🧼 Nếu không có phím di chuyển, dừng luôn
     if (direction.lengthSq() === 0) {
       velocity.current.set(0, 0, 0)
       return
@@ -374,13 +370,25 @@ const FreeMovementControls: React.FC<{
 
     const nextPosition = camera.position.clone().add(velocity.current)
 
-    const wall = centerWallRef.current
-    if (wall) {
-      wall.geometry.computeBoundingBox()
-      wall.updateMatrixWorld(true)
-      const box = wall.geometry.boundingBox!.clone().applyMatrix4(wall.matrixWorld)
-      const paddedBox = box.clone().expandByScalar(0.3)
-      if (paddedBox.containsPoint(nextPosition)) {
+    // 🚧 Collision with art boxes
+    const boxes = artBoxesRef.current
+    if (boxes) {
+      let collision = false
+      for (const box of boxes) {
+        if (box && box.children[0]) { // Check if box mesh exists
+          const boxMesh = box.children[0] as THREE.Mesh
+          boxMesh.geometry.computeBoundingBox()
+          boxMesh.updateMatrixWorld(true)
+          const boxBounds = boxMesh.geometry.boundingBox!.clone().applyMatrix4(boxMesh.matrixWorld)
+          const paddedBox = boxBounds.clone().expandByScalar(0.5)
+          if (paddedBox.containsPoint(nextPosition)) {
+            collision = true
+            break
+          }
+        }
+      }
+      
+      if (collision) {
         velocity.current.set(0, 0, 0)
         return
       }
@@ -393,6 +401,7 @@ const FreeMovementControls: React.FC<{
   return null
 }
 
+// Các mặt của căn phòng
 const WallBackground = () => {
   const roomSize = 100
   const roomHeight = 10
@@ -406,30 +415,43 @@ const WallBackground = () => {
 
   return (
     <>
+      {/* Tường sau */}
       <mesh position={[0, 0, -roomSize / 2]}>
         <planeGeometry args={[roomSize, roomHeight]} />
         <meshStandardMaterial map={wallTexture} side={THREE.DoubleSide} />
       </mesh>
+
+      {/* Tường trước */}
       <mesh position={[0, 0, roomSize / 2]} rotation={[0, Math.PI, 0]}>
         <planeGeometry args={[roomSize, roomHeight]} />
         <meshStandardMaterial map={wallTexture} side={THREE.DoubleSide} />
       </mesh>
+
+      {/* Tường trái */}
       <mesh position={[-roomSize / 2, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
         <planeGeometry args={[roomSize, roomHeight]} />
         <meshStandardMaterial map={wallTexture} side={THREE.DoubleSide} />
       </mesh>
+
+      {/* Tường phải */}
       <mesh position={[roomSize / 2, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
         <planeGeometry args={[roomSize, roomHeight]} />
         <meshStandardMaterial map={wallTexture} side={THREE.DoubleSide} />
       </mesh>
+
+      {/* Trần */}
       <mesh position={[0, roomHeight / 2, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <planeGeometry args={[roomSize, roomSize]} />
         <meshStandardMaterial map={wallTexture} side={THREE.DoubleSide} />
       </mesh>
+
+      {/* Sàn */}
       <mesh position={[0, -roomHeight / 2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[roomSize, roomSize]} />
         <meshStandardMaterial map={floorTexture} side={THREE.DoubleSide} />
       </mesh>
+
+      {/* Lưới đèn trần 3x3 */}
       {[-33, 0, 33].map((x) =>
         [-33, 0, 33].map((z) => (
           <group key={`${x}-${z}`} position={[x, roomHeight / 2 - 0.2, z]}>
@@ -454,50 +476,46 @@ const WallBackground = () => {
   )
 }
 
-const CenterWall = React.forwardRef<THREE.Mesh>((_, ref) => {
+// Component for multiple art boxes
+const ArtBoxes: React.FC<{ boxesRef: React.RefObject<THREE.Group[]> }> = ({ boxesRef }) => {
   const wallTexture = useLoader(TextureLoader, '/wall-2.jpg')
-
-  const width = 10
-  const height = 8
-  const length = 40
+  
+  useEffect(() => {
+    if (boxesRef.current) {
+      // Initialize the array if needed
+      boxesRef.current = []
+    }
+  }, [boxesRef])
 
   return (
-    <mesh ref={ref} position={[0, height / 2 - 5, 0]}>
-      <boxGeometry args={[width, height, length]} />
-      <meshStandardMaterial map={wallTexture} />
-    </mesh>
+    <>
+      {ART_BOXES.map((artBox, index) => (
+        <group
+          key={artBox.id}
+          ref={(el) => {
+            if (boxesRef.current && el) {
+              boxesRef.current[index] = el
+            }
+          }}
+          position={artBox.position}
+          rotation={artBox.rotation}
+        >
+          <mesh>
+            <boxGeometry args={artBox.size} />
+            <meshStandardMaterial map={wallTexture} />
+          </mesh>
+        </group>
+      ))}
+    </>
   )
-})
+}
 
-const Gallery3D: React.FC = () => {
-  const centerWallRef = useRef<THREE.Mesh>(null!)
+const Gallery3D2: React.FC = () => {
+  const artBoxesRef = useRef<THREE.Group[]>([])
   const mobileControlsRef = useRef<{ [key: string]: boolean }>({})
   const galleryRef = useRef<HTMLDivElement>(null!)
-  const audioRef = useRef<HTMLAudioElement | null>(null)
   const [isMobile, setIsMobile] = useState(false)
   const [showGallery, setShowGallery] = useState(false)
-  const [volume, setVolume] = useState(0.5) // Mức âm lượng mặc định (0.0 - 1.0)
-
-  // Khởi tạo audio
-  useEffect(() => {
-    audioRef.current = new Audio('/Lanterns-at-Dusk.mp3')
-    audioRef.current.loop = true
-    audioRef.current.volume = volume
-
-    return () => {
-      if (audioRef.current) {
-        audioRef.current.pause()
-        audioRef.current = null
-      }
-    }
-  }, [])
-
-  // Cập nhật âm lượng khi volume thay đổi
-  useEffect(() => {
-    if (audioRef.current) {
-      audioRef.current.volume = volume
-    }
-  }, [volume])
 
   useEffect(() => {
     const checkMobile = () => {
@@ -515,14 +533,6 @@ const Gallery3D: React.FC = () => {
 
   const handleDiscoverClick = async () => {
     setShowGallery(true)
-
-    if (audioRef.current) {
-      try {
-        await audioRef.current.play()
-      } catch (err) {
-        console.warn("Failed to play audio:", err)
-      }
-    }
 
     setTimeout(async () => {
       if (galleryRef.current) {
@@ -542,10 +552,6 @@ const Gallery3D: React.FC = () => {
   const handleBackClick = async () => {
     setShowGallery(false)
 
-    if (audioRef.current) {
-      audioRef.current.pause()
-    }
-
     if (document.fullscreenElement) {
       try {
         await document.exitFullscreen()
@@ -555,80 +561,15 @@ const Gallery3D: React.FC = () => {
     }
   }
 
-  // Xử lý thay đổi âm lượng
-  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const newVolume = parseFloat(e.target.value)
-    setVolume(newVolume)
-  }
-
-  return (
-    <div
-      id="gallery-wrapper"
-      ref={galleryRef}
-      className="w-full h-screen relative"
-    >
-      {showGallery ? (
-        <>
-          <Canvas camera={{ fov: 75, near: 0.1, far: 1000, position: [2, 1.5, 25] }}>
-            <ambientLight intensity={1.2} color="#FFE8C2" />
-            <pointLight position={[10, 10, 10]} intensity={0.5} />
-            <CenterWall ref={centerWallRef} />
-            <FreeMovementControls
-              centerWallRef={centerWallRef}
-              mobileControls={mobileControlsRef}
-            />
-            <WallBackground />
-            <PlantModel position={[-46, -5, -46]} />
-            <PlantModel position={[46, -5, -46]} />
-            <PlantModel position={[-46, -5, 46]} />
-            <PlantModel position={[46, -5, 46]} />
-            <BarrierModel position={[0, -5, 16]} />
-            <BarrierModel position={[0, -5, -27]} />
-            {SAMPLE_IMAGES.map((imageData) => (
-              <ImageFrame key={imageData.id} imageData={imageData} />
-            ))}
-          </Canvas>
-
-          <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded-lg">
-            <p className="text-sm">
-              {isMobile
-                ? "Explore the lantern museum — use the controls below to move around"
-                : "Explore the lantern museum — click to look around and move using W A S D"}
-            </p>
-          </div>
-
-          <button
-            onClick={handleBackClick}
-            className="absolute top-4 right-4 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg transition-colors duration-300"
-          >
-            ← Back to Intro
-          </button>
-
-          {/* Thanh trượt điều chỉnh âm lượng */}
-          <div className="absolute top-16 right-4 bg-black bg-opacity-50 text-white p-3 rounded-lg flex items-center space-x-2">
-            <label htmlFor="volume" className="text-sm">Volume:</label>
-            <input
-              id="volume"
-              type="range"
-              min="0"
-              max="1"
-              step="0.01"
-              value={volume}
-              onChange={handleVolumeChange}
-              className="w-24 accent-amber-500"
-            />
-          </div>
-
-          <MobileControls onMove={handleMobileMove} isMobile={isMobile} />
-        </>
-      ) : (
-        <div className="min-h-screen bg-black relative flex items-center justify-center overflow-hidden px-8">
-  {/* Red particles floating in the background */}
+  if (!showGallery) {
+    return (
+      <div className="min-h-screen bg-black relative flex items-center justify-center overflow-hidden px-8">
+  {/* Yellow particles floating in the background */}
   <div className="absolute inset-0 pointer-events-none">
     {Array.from({ length: 25 }).map((_, i) => (
       <div
         key={i}
-        className="absolute w-1.5 h-1.5 bg-red-500 rounded-full opacity-40 animate-float-fade"
+        className="absolute w-1.5 h-1.5 bg-yellow-400 rounded-full opacity-40 animate-float-fade"
         style={{
           top: `${Math.random() * 100}%`,
           left: `${Math.random() * 100}%`,
@@ -643,47 +584,47 @@ const Gallery3D: React.FC = () => {
     {/* Left side: Text content */}
     <div className="flex-1 space-y-6 text-left">
       {/* Section intro */}
-      <p className="uppercase text-sm text-white/50 tracking-widest">Section 1</p>
+      <p className="uppercase text-sm text-white/50 tracking-widest">Section 2</p>
       <h2 className="text-2xl md:text-3xl font-medium text-white/80 italic">
-        The beginning of the <span className="text-red-500 font-semibold">light culture</span>, where tradition meets imagination.
+        A journey into the <span className="text-yellow-400 font-semibold">creative flames</span> of Vietnamese artisans.
       </h2>
 
       {/* Title */}
       <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight leading-tight">
-        <span className="text-red-500">Lantern</span>{" "}
-        <span className="block text-white">World</span>
+        <span className="text-yellow-400">Ignite</span>{" "}
+        <span className="block text-white">Inspiration</span>
       </h1>
 
       {/* Subtitle */}
       <p className="text-xl md:text-2xl text-white/70 font-light">
-        A 3D Art Museum experience
+        Stories behind the glow
       </p>
 
       {/* Description */}
       <p className="text-white/70 text-lg max-w-lg leading-relaxed">
-        Step into a magical universe of lanterns — a modern reinterpretation of Vietnamese light culture in an immersive, interactive space.
+        Discover the rich heritage of lantern craftsmanship, passed down through generations — now reborn in digital form, sparking creativity in every visitor.
       </p>
 
       {/* Button */}
       <button
         onClick={handleDiscoverClick}
-        className="mt-4 group bg-red-500 hover:bg-red-400 text-black font-semibold py-4 px-10 rounded-full text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-red-500/25"
+        className="mt-4 group bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-4 px-10 rounded-full text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-yellow-400/25"
       >
-        Discover
+        Enter
       </button>
 
       {/* Controls hint */}
       <p className="text-white/40 text-sm mt-3">
-        {isMobile ? "Tap to move" : "Use W A S D to move"}
+        {isMobile ? "Tap to explore" : "Click and drag to look around"}
       </p>
     </div>
 
-    {/* Right side: Placeholder for illustration or 3D preview */}
+    {/* Right side: Image or 3D element */}
     <div className="flex-1 hidden md:flex items-center justify-center">
-      <div className="w-full h-[400px] rounded-xl border border-red-500/20 bg-white/5 backdrop-blur-sm flex items-center justify-center text-white/30">
+      <div className="w-full h-[400px] rounded-xl border border-yellow-400/20 bg-white/5 backdrop-blur-sm flex items-center justify-center text-white/30">
         <img
-          src="/lantern-1.png"
-          alt="Lantern preview"
+          src="/lantern-2.png"
+          alt="Crafting preview"
           className="object-cover w-full h-full"
         />
       </div>
@@ -712,10 +653,53 @@ const Gallery3D: React.FC = () => {
   `}</style>
 </div>
 
+    )
+  }
 
-      )}
+  return (
+    <div
+      id="gallery-wrapper"
+      ref={galleryRef}
+      className="w-full h-screen relative"
+    >
+      <Canvas camera={{ fov: 75, near: 0.1, far: 1000, position: [2, 1.5, 25] }}>
+        <ambientLight intensity={1.2} color="#FFE8C2" />
+        <pointLight position={[10, 10, 10]} intensity={0.5} />
+        <ArtBoxes boxesRef={artBoxesRef} />
+        <FreeMovementControls
+          artBoxesRef={artBoxesRef}
+          mobileControls={mobileControlsRef}
+        />
+        <WallBackground />
+        <PlantModel position={[-46, -5, -46]} />
+        <PlantModel position={[46, -5, -46]} />
+        <PlantModel position={[-46, -5, 46]} />
+        <PlantModel position={[46, -5, 46]} />
+        <BarrierModel position={[0, -5, 16]} />
+        <BarrierModel position={[0, -5, -27]} />
+        {SAMPLE_IMAGES.map((imageData) => (
+          <ImageFrame key={imageData.id} imageData={imageData} />
+        ))}
+      </Canvas>
+
+      <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded-lg">
+        <p className="text-sm">
+          {isMobile
+            ? "Explore the lantern museum — use the controls below to move around"
+            : "Explore the lantern museum — click to look around and move using W A S D"}
+        </p>
+      </div>
+
+      <button
+        onClick={handleBackClick}
+        className="absolute top-4 right-4 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg transition-colors duration-300"
+      >
+        ← Back to Intro
+      </button>
+
+      <MobileControls onMove={handleMobileMove} isMobile={isMobile} />
     </div>
   )
 }
 
-export default Gallery3D
+export default Gallery3D2
