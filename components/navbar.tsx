@@ -10,7 +10,7 @@ import clsx from 'clsx'
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const { items } = useCart()
-  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0)
+  const itemCount = items.length
 
   const [showNav, setShowNav] = useState(true)
   const lastScrollY = useRef(0)
@@ -40,7 +40,7 @@ export default function Navbar() {
             <Link href="/" className="flex items-center space-x-8">
               <div className="w-10 h-10 rounded-full overflow-hidden bg-white/20">
                 <img
-                  src="/logo.png" // 👉 thay bằng logo thật của bạn
+                  src="/logo.png"
                   alt="LanternVerse Logo"
                   className="w-full h-full object-cover"
                 />
@@ -65,7 +65,7 @@ export default function Navbar() {
                 <Button variant="ghost" size="sm" className="relative text-white hover:text-black">
                   <ShoppingCart className="h-5 w-5" />
                   {itemCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-black text-black text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    <span className="absolute -top-2 -right-2 bg-red-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
                       {itemCount}
                     </span>
                   )}

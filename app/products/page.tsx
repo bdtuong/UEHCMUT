@@ -2,7 +2,7 @@ import ProductGrid from "@/components/product-grid"
 
 export default function ProductsPage() {
   return (
-    <main className="min-h-screen bg-stone-50">
+    <main className="min-h-screen bg-stone-50 pt-[4rem]">
       <div className="container mx-auto px-6 py-12">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 font-serif">Authentic Hoi An Lanterns</h1>
