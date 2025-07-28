@@ -7,7 +7,7 @@ import { TextureLoader } from 'three'
 import PlantModel from './ui/plant-model'
 import BarrierModel from './ui/barrier-model'
 import { Html, OrbitControls } from '@react-three/drei'
-import ArrowControls from './ArrowControls'
+import StarLoader from '@/components/starloader'
 
 // Interface mô tả thông tin của một bức tranh
 interface ImageData {
@@ -18,188 +18,92 @@ interface ImageData {
   imageUrl: string
   position: [number, number, number]
   size: [number, number]
-  rotation?: [number, number, number]
 }
 
-// Interface cho art block
-interface ArtBlock {
-  id: string
-  position: [number, number, number]
-  rotation: [number, number, number]
-  size: [number, number, number] // width, height, depth
-  type: 'wall' | 'glass'
-}
-
-// Tạo 4 khối lớn ở 4 phía phòng + 1 tủ kính ở giữa
-const generateArtBlocks = (): ArtBlock[] => {
-  const blocks: ArtBlock[] = []
-  
-  // 4 khối lớn mỏng ở 4 phía
-  const wallBlocks = [
-    // Khối phía sau (North)
-    {
-      id: 'wall-north',
-      position: [0, -2, -30] as [number, number, number],
-      rotation: [0, 0, 0] as [number, number, number],
-      size: [25, 6, 2] as [number, number, number],
-      type: 'wall' as const
-    },
-    // Khối phía trước (South)  
-    {
-      id: 'wall-south',
-      position: [0, -2, 30] as [number, number, number],
-      rotation: [0, 0, 0] as [number, number, number],
-      size: [25, 6, 2] as [number, number, number],
-      type: 'wall' as const
-    },
-    // Khối phía trái (West)
-    {
-      id: 'wall-west',
-      position: [-30, -2, 0] as [number, number, number],
-      rotation: [0, Math.PI/2, 0] as [number, number, number],
-      size: [25, 6, 2] as [number, number, number],
-      type: 'wall' as const
-    },
-    // Khối phía phải (East)
-    {
-      id: 'wall-east',
-      position: [30, -2, 0] as [number, number, number],
-      rotation: [0, Math.PI/2, 0] as [number, number, number],
-      size: [25, 6, 2] as [number, number, number],
-      type: 'wall' as const
-    }
-  ]
-  
-  // 1 tủ kính ở giữa
-  const glassCase = {
-    id: 'glass-center',
-    position: [0, -2, 0] as [number, number, number],
-    rotation: [0, 0, 0] as [number, number, number],
-    size: [4, 8, 4] as [number, number, number],
-    type: 'glass' as const
-  }
-  
-  return [...wallBlocks, glassCase]
-}
-
-// Generate art blocks
-const ART_BLOCKS = generateArtBlocks()
-
-// Tạo tranh cho tất cả các mặt của blocks
-const generateImageData = (): ImageData[] => {
-  const images: ImageData[] = []
-  let imageId = 1
-  
-  ART_BLOCKS.forEach((block) => {
-    const [x, y, z] = block.position
-    const [rotX, rotY, rotZ] = block.rotation
-    const [width, height, depth] = block.size
-    
-    if (block.type === 'wall') {
-      // Các khối tường: tranh trên 2 mặt chính (trước và sau theo hướng block)
-      const faces = [
-        // Front face
-        {
-          position: [x, y, z + depth/2 + 0.01] as [number, number, number],
-          size: [width * 0.8, height * 0.7] as [number, number],
-          rotation: [0, rotY, 0] as [number, number, number]
-        },
-        // Back face
-        {
-          position: [x, y, z - depth/2 - 0.01] as [number, number, number],
-          size: [width * 0.8, height * 0.7] as [number, number],
-          rotation: [0, rotY + Math.PI, 0] as [number, number, number]
-        }
-      ]
-      
-      faces.forEach((face, faceIndex) => {
-        images.push({
-          id: `${imageId}`,
-          title: `Gallery ${imageId}`,
-          artist: `Artist ${String.fromCharCode(65 + (imageId % 26))}`,
-          description: `Beautiful lantern artwork on ${block.id}, side ${faceIndex + 1}.`,
-          imageUrl: '/mock-img.jpg',
-          position: face.position,
-          size: face.size,
-          rotation: face.rotation
-        })
-        imageId++
-      })
-    } else if (block.type === 'glass') {
-      // Tủ kính: tranh trên 4 mặt
-      const faces = [
-        // Front face (Z+)
-        {
-          position: [x, y, z + depth/2 + 0.01] as [number, number, number],
-          size: [width * 0.8, height * 0.6] as [number, number],
-          rotation: [0, 0, 0] as [number, number, number]
-        },
-        // Back face (Z-)
-        {
-          position: [x, y, z - depth/2 - 0.01] as [number, number, number],
-          size: [width * 0.8, height * 0.6] as [number, number],
-          rotation: [0, Math.PI, 0] as [number, number, number]
-        },
-        // Left face (X-)
-        {
-          position: [x - width/2 - 0.01, y, z] as [number, number, number],
-          size: [depth * 0.8, height * 0.6] as [number, number],
-          rotation: [0, Math.PI/2, 0] as [number, number, number]
-        },
-        // Right face (X+)
-        {
-          position: [x + width/2 + 0.01, y, z] as [number, number, number],
-          size: [depth * 0.8, height * 0.6] as [number, number],
-          rotation: [0, -Math.PI/2, 0] as [number, number, number]
-        }
-      ]
-      
-      faces.forEach((face, faceIndex) => {
-        images.push({
-          id: `${imageId}`,
-          title: `Centerpiece ${imageId}`,
-          artist: `Master ${String.fromCharCode(65 + (imageId % 26))}`,
-          description: `Premium lantern collection in glass case, panel ${faceIndex + 1}.`,
-          imageUrl: '/mock-img.jpg',
-          position: face.position,
-          size: face.size,
-          rotation: face.rotation
-        })
-        imageId++
-      })
-    }
-  })
-  
-  return images
-}
-
-const SAMPLE_IMAGES = generateImageData()
+// Mảng chỉ chứa 6 tranh trên 4 mặt tường
+const SAMPLE_IMAGES: ImageData[] = [
+  {
+    id: '1',
+    title: 'Northern Wall Center',
+    artist: 'Artist A',
+    description: 'Center of back wall.',
+    imageUrl: '/mock-img.jpg',
+    position: [0, 0, -29.9],
+    size: [24, 16],
+  },
+  {
+    id: '2',
+    title: 'Western Wall Art 1',
+    artist: 'Artist B',
+    description: 'Left wall artwork.',
+    imageUrl: '/mock-img.jpg',
+    position: [-29.9, 0, -10],
+    size: [16, 12],
+  },
+  {
+    id: '3',
+    title: 'Western Wall Art 2',
+    artist: 'Artist C',
+    description: 'Left wall artwork.',
+    imageUrl: '/mock-img.jpg',
+    position: [-29.9, 0, 10],
+    size: [16, 12],
+  },
+  {
+    id: '4',
+    title: 'Eastern Wall Art 1',
+    artist: 'Artist D',
+    description: 'Right wall artwork.',
+    imageUrl: '/mock-img.jpg',
+    position: [29.9, 0, -10],
+    size: [16, 12],
+  },
+  {
+    id: '5',
+    title: 'Eastern Wall Art 2',
+    artist: 'Artist E',
+    description: 'Right wall artwork.',
+    imageUrl: '/mock-img.jpg',
+    position: [29.9, 0, 10],
+    size: [16, 12],
+  },
+  {
+    id: '6',
+    title: 'Southern Wall Center',
+    artist: 'Artist F',
+    description: 'Front wall center.',
+    imageUrl: '/mock-img.jpg',
+    position: [0, 0, 29.9],
+    size: [24, 16],
+  },
+]
 
 const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
   const { camera } = useThree()
   const texture = useLoader(TextureLoader, imageData.imageUrl)
   const [width, height] = imageData.size
-  const frameThickness = 0.04
+  const frameThickness = 0.05
   const frameColor = '#D4AF37'
   const [showInfo, setShowInfo] = useState(false)
 
   const [x, y, z] = imageData.position
   const position = new THREE.Vector3(x, y, z)
 
-  // Use provided rotation
-  const rotation = imageData.rotation 
-    ? new THREE.Euler(...imageData.rotation)
-    : new THREE.Euler()
+  const rotation = new THREE.Euler()
 
-  // Kiểm tra khoảng cách camera
+  // Tính toán rotation dựa trên vị trí trên tường
+  if (z < -25) rotation.y = 0        // Tường phía sau (North)
+  else if (z > 25) rotation.y = Math.PI  // Tường phía trước (South)
+  else if (x < -25) rotation.y = Math.PI / 2  // Tường trái (West)
+  else if (x > 25) rotation.y = -Math.PI / 2   // Tường phải (East)
+
   useFrame(() => {
     const distance = camera.position.distanceTo(position)
-    setShowInfo(distance < 5)
+    setShowInfo(distance < 8)
   })
 
   return (
     <group position={imageData.position} rotation={rotation}>
-      {/* Khung viền */}
       <mesh position={[0, height / 2 + frameThickness / 2, -0.01]}>
         <boxGeometry args={[width + 2 * frameThickness, frameThickness, 0.02]} />
         <meshStandardMaterial color={frameColor} />
@@ -216,17 +120,13 @@ const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
         <boxGeometry args={[frameThickness, height, 0.02]} />
         <meshStandardMaterial color={frameColor} />
       </mesh>
-
-      {/* Ảnh chính */}
       <mesh>
         <planeGeometry args={imageData.size} />
-        <meshStandardMaterial map={texture} side={THREE.DoubleSide}/>
+        <meshStandardMaterial map={texture} side={THREE.DoubleSide} />
       </mesh>
-
-      {/* Hiện thông tin nếu đủ gần */}
       {showInfo && (
-        <Html distanceFactor={10} position={[0, height / 2 + 0.4, 0]} transform sprite>
-          <div className="bg-white/90 backdrop-blur text-black p-2 rounded-md shadow-lg max-w-sm text-sm">
+        <Html distanceFactor={10} position={[0, height / 2 + 0.5, 0]} transform sprite>
+          <div className="bg-white/90 backdrop-blur text-black p-2 rounded-md shadow-lg max-w-2xl text-sm">
             <p className="font-semibold">{imageData.title}</p>
             <p className="italic text-gray-600">{imageData.artist}</p>
             <p>{imageData.description}</p>
@@ -237,18 +137,16 @@ const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
   )
 }
 
-// Mobile Controls Component
-const MobileControls: React.FC<{ 
-  onMove: (direction: string, pressed: boolean) => void;
-  isMobile: boolean;
+const MobileControls: React.FC<{
+  onMove: (direction: string, pressed: boolean) => void
+  isMobile: boolean
 }> = ({ onMove, isMobile }) => {
-  if (!isMobile) return null;
+  if (!isMobile) return null
 
-  const buttonStyle = "w-12 h-12 bg-black bg-opacity-50 text-white rounded-full flex items-center justify-center text-lg font-bold active:bg-opacity-70 select-none touch-manipulation";
+  const buttonStyle = "w-12 h-12 bg-black bg-opacity-50 text-white rounded-full flex items-center justify-center text-lg font-bold active:bg-opacity-70 select-none touch-manipulation"
 
   return (
     <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end pointer-events-none">
-      {/* Movement Controls */}
       <div className="relative pointer-events-auto">
         <div className="grid grid-cols-3 gap-2 w-36">
           <div></div>
@@ -263,7 +161,6 @@ const MobileControls: React.FC<{
             ↑
           </button>
           <div></div>
-          
           <button
             className={buttonStyle}
             onTouchStart={() => onMove('a', true)}
@@ -297,13 +194,12 @@ const MobileControls: React.FC<{
         </div>
       </div>
     </div>
-  );
-};
+  )
+}
 
 const FreeMovementControls: React.FC<{
-  artBlocksRef: React.RefObject<THREE.Group[]>
   mobileControls: React.MutableRefObject<{ [key: string]: boolean }>
-}> = ({ artBlocksRef, mobileControls }) => {
+}> = ({ mobileControls }) => {
   const { camera, gl } = useThree()
   const keys = useRef<{ [key: string]: boolean }>({})
   const velocity = useRef(new THREE.Vector3())
@@ -318,7 +214,6 @@ const FreeMovementControls: React.FC<{
     camera.rotation.order = 'YXZ'
   }, [camera])
 
-  // Keyboard input
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       keys.current[e.key.toLowerCase()] = true
@@ -334,7 +229,6 @@ const FreeMovementControls: React.FC<{
     }
   }, [])
 
-  // Mouse + Touch drag to rotate camera
   useEffect(() => {
     const canvas = gl.domElement
 
@@ -348,7 +242,6 @@ const FreeMovementControls: React.FC<{
       camera.quaternion.copy(quaternion)
     }
 
-    // Mouse events
     const onMouseDown = (e: MouseEvent) => {
       isDragging.current = true
       lastMouse.current = { x: e.clientX, y: e.clientY }
@@ -364,7 +257,6 @@ const FreeMovementControls: React.FC<{
       updateRotation(deltaX, deltaY)
     }
 
-    // Touch events
     const onTouchStart = (e: TouchEvent) => {
       isDragging.current = true
       const touch = e.touches[0]
@@ -382,7 +274,6 @@ const FreeMovementControls: React.FC<{
       updateRotation(deltaX, deltaY)
     }
 
-    // Add listeners
     canvas.addEventListener('mousedown', onMouseDown)
     window.addEventListener('mouseup', onMouseUp)
     window.addEventListener('mousemove', onMouseMove)
@@ -403,19 +294,18 @@ const FreeMovementControls: React.FC<{
   }, [gl, camera])
 
   useFrame((_, delta) => {
-    const speed = 5
+    const speed = 8
     direction.set(0, 0, 0)
 
     const activeKeys = { ...keys.current, ...mobileControls.current }
 
-    if (activeKeys['w']) direction.z -= 3
-    if (activeKeys['s']) direction.z += 3
-    if (activeKeys['a']) direction.x -= 3
-    if (activeKeys['d']) direction.x += 3
+    if (activeKeys['w']) direction.z -= 1
+    if (activeKeys['s']) direction.z += 1
+    if (activeKeys['a']) direction.x -= 1
+    if (activeKeys['d']) direction.x += 1
 
     direction.normalize()
 
-    // 🧼 Nếu không có phím di chuyển, dừng luôn
     if (direction.lengthSq() === 0) {
       velocity.current.set(0, 0, 0)
       return
@@ -426,102 +316,72 @@ const FreeMovementControls: React.FC<{
 
     const nextPosition = camera.position.clone().add(velocity.current)
 
-    // 🚧 Collision with art blocks
-    const blocks = artBlocksRef.current
-    if (blocks) {
-      let collision = false
-      for (const block of blocks) {
-        if (block && block.children[0]) { // Check if block mesh exists
-          const blockMesh = block.children[0] as THREE.Mesh
-          blockMesh.geometry.computeBoundingBox()
-          blockMesh.updateMatrixWorld(true)
-          const blockBounds = blockMesh.geometry.boundingBox!.clone().applyMatrix4(blockMesh.matrixWorld)
-          const paddedBox = blockBounds.clone().expandByScalar(1.0) // Larger padding for bigger blocks
-          if (paddedBox.containsPoint(nextPosition)) {
-            collision = true
-            break
-          }
-        }
-      }
-      
-      if (collision) {
-        velocity.current.set(0, 0, 0)
-        return
-      }
-    }
+    // Giới hạn di chuyển trong phòng 60x60x30
+    const roomLimit = 28
+    const heightMin = -12
+    const heightMax = 12
+
+    nextPosition.x = THREE.MathUtils.clamp(nextPosition.x, -roomLimit, roomLimit)
+    nextPosition.z = THREE.MathUtils.clamp(nextPosition.z, -roomLimit, roomLimit)
+    nextPosition.y = THREE.MathUtils.clamp(nextPosition.y, heightMin, heightMax)
 
     camera.position.copy(nextPosition)
-    camera.position.y = THREE.MathUtils.clamp(camera.position.y, -4.5, 8)
   })
 
   return null
 }
 
-// Các mặt của căn phòng
 const WallBackground = () => {
-  const roomSize = 100
-  const roomHeight = 10
+  const roomSize = 60
+  const roomHeight = 30
   const floorTexture = useLoader(TextureLoader, '/floor-1.jpg')
   floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping
-  floorTexture.repeat.set(8, 8)
+  floorTexture.repeat.set(6, 6)
 
   const wallTexture = useLoader(TextureLoader, '/wall-4.jpg')
   wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping
-  wallTexture.repeat.set(roomSize / 10, roomHeight / 2.5)
+  wallTexture.repeat.set(roomSize / 10, roomHeight / 5)
 
   return (
     <>
-      {/* Tường sau */}
       <mesh position={[0, 0, -roomSize / 2]}>
         <planeGeometry args={[roomSize, roomHeight]} />
         <meshStandardMaterial map={wallTexture} side={THREE.DoubleSide} />
       </mesh>
-
-      {/* Tường trước */}
       <mesh position={[0, 0, roomSize / 2]} rotation={[0, Math.PI, 0]}>
         <planeGeometry args={[roomSize, roomHeight]} />
         <meshStandardMaterial map={wallTexture} side={THREE.DoubleSide} />
       </mesh>
-
-      {/* Tường trái */}
       <mesh position={[-roomSize / 2, 0, 0]} rotation={[0, Math.PI / 2, 0]}>
         <planeGeometry args={[roomSize, roomHeight]} />
         <meshStandardMaterial map={wallTexture} side={THREE.DoubleSide} />
       </mesh>
-
-      {/* Tường phải */}
       <mesh position={[roomSize / 2, 0, 0]} rotation={[0, -Math.PI / 2, 0]}>
         <planeGeometry args={[roomSize, roomHeight]} />
         <meshStandardMaterial map={wallTexture} side={THREE.DoubleSide} />
       </mesh>
-
-      {/* Trần */}
       <mesh position={[0, roomHeight / 2, 0]} rotation={[Math.PI / 2, 0, 0]}>
         <planeGeometry args={[roomSize, roomSize]} />
         <meshStandardMaterial map={wallTexture} side={THREE.DoubleSide} />
       </mesh>
-
-      {/* Sàn */}
       <mesh position={[0, -roomHeight / 2, 0]} rotation={[-Math.PI / 2, 0, 0]}>
         <planeGeometry args={[roomSize, roomSize]} />
         <meshStandardMaterial map={floorTexture} side={THREE.DoubleSide} />
       </mesh>
-
-      {/* Lưới đèn trần 3x3 */}
-      {[-33, 0, 33].map((x) =>
-        [-33, 0, 33].map((z) => (
-          <group key={`${x}-${z}`} position={[x, roomHeight / 2 - 0.2, z]}>
+      {[-20, 0, 20].map((x) =>
+        [-20, 0, 20].map((z) => (
+          <group key={`${x}-${z}`} position={[x, roomHeight / 2 - 0.5, z]}>
             <mesh>
-              <sphereGeometry args={[0.3, 16, 16]} />
+              <sphereGeometry args={[0.4, 16, 16]} />
               <meshStandardMaterial
                 color="#ffffff"
                 emissive="#fff5e1"
-                emissiveIntensity={2.2}
+                emissiveIntensity={2.5}
               />
             </mesh>
             <pointLight
-              intensity={1.2}
-              distance={60}
+              intensity={1.5}
+              distance={80}
               color="#fff5e1"
               castShadow
             />
@@ -532,61 +392,33 @@ const WallBackground = () => {
   )
 }
 
-// Component for art blocks (4 wall blocks + 1 glass case)
-const ArtBlocks: React.FC<{ blocksRef: React.RefObject<THREE.Group[]> }> = ({ blocksRef }) => {
-  const wallTexture = useLoader(TextureLoader, '/wall-2.jpg')
-  
-  useEffect(() => {
-    if (blocksRef.current) {
-      // Initialize the array if needed
-      blocksRef.current = []
-    }
-  }, [blocksRef])
-
-  return (
-    <>
-      {ART_BLOCKS.map((artBlock, index) => (
-        <group
-          key={artBlock.id}
-          ref={(el) => {
-            if (blocksRef.current && el) {
-              blocksRef.current[index] = el
-            }
-          }}
-          position={artBlock.position}
-          rotation={artBlock.rotation}
-        >
-          <mesh>
-            <boxGeometry args={artBlock.size} />
-            {artBlock.type === 'glass' ? (
-              <meshPhysicalMaterial
-                color="#ffffff"
-                transmission={0.9}
-                opacity={0.3}
-                transparent={true}
-                roughness={0.1}
-                metalness={0.0}
-                clearcoat={1.0}
-                clearcoatRoughness={0.1}
-                ior={1.5}
-                thickness={0.5}
-              />
-            ) : (
-              <meshStandardMaterial map={wallTexture} />
-            )}
-          </mesh>
-        </group>
-      ))}
-    </>
-  )
-}
-
 const Gallery3D3: React.FC = () => {
-  const artBlocksRef = useRef<THREE.Group[]>([])
   const mobileControlsRef = useRef<{ [key: string]: boolean }>({})
   const galleryRef = useRef<HTMLDivElement>(null!)
+  const audioRef = useRef<HTMLAudioElement | null>(null)
   const [isMobile, setIsMobile] = useState(false)
   const [showGallery, setShowGallery] = useState(false)
+  const [volume, setVolume] = useState(0.5)
+  const [isLoadingScene, setIsLoadingScene] = useState(false)
+
+  useEffect(() => {
+    audioRef.current = new Audio('/Lanterns-at-Dusk.mp3')
+    audioRef.current.loop = true
+    audioRef.current.volume = volume
+
+    return () => {
+      if (audioRef.current) {
+        audioRef.current.pause()
+        audioRef.current = null
+      }
+    }
+  }, [])
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume
+    }
+  }, [volume])
 
   useEffect(() => {
     const checkMobile = () => {
@@ -603,7 +435,16 @@ const Gallery3D3: React.FC = () => {
   }
 
   const handleDiscoverClick = async () => {
+    setIsLoadingScene(true)
     setShowGallery(true)
+
+    if (audioRef.current) {
+      try {
+        await audioRef.current.play()
+      } catch (err) {
+        console.warn("Failed to play audio:", err)
+      }
+    }
 
     setTimeout(async () => {
       if (galleryRef.current) {
@@ -623,6 +464,10 @@ const Gallery3D3: React.FC = () => {
   const handleBackClick = async () => {
     setShowGallery(false)
 
+    if (audioRef.current) {
+      audioRef.current.pause()
+    }
+
     if (document.fullscreenElement) {
       try {
         await document.exitFullscreen()
@@ -632,15 +477,86 @@ const Gallery3D3: React.FC = () => {
     }
   }
 
-  if (!showGallery) {
-    return (
-      <div className="relative min-h-screen bg-gradient-to-br from-black via-[#0d1a0d] to-black px-8 py-20 overflow-hidden flex items-center justify-center">
-  {/* Soft glowing particles */}
-  <div className="absolute inset-0 pointer-events-none z-0">
-    {Array.from({ length: 40 }).map((_, i) => (
+  const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const newVolume = parseFloat(e.target.value)
+    setVolume(newVolume)
+  }
+
+  return (
+    <div
+      id="gallery-wrapper"
+      ref={galleryRef}
+      className="w-full h-screen relative"
+    >
+      {showGallery ? (
+        <>
+          {isLoadingScene && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center bg-black">
+              <StarLoader />
+            </div>
+          )}
+
+          <Canvas onCreated={() => setIsLoadingScene(false)} camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 0, 25] }}>
+            <ambientLight intensity={1.2} color="#FFE8C2" />
+            <pointLight position={[10, 10, 10]} intensity={0.5} />
+            <FreeMovementControls
+              mobileControls={mobileControlsRef}
+            />
+            <WallBackground />
+            <PlantModel position={[-26, -15, -26]} />
+            <PlantModel position={[26, -15, -26]} />
+            <PlantModel position={[-26, -15, 26]} />
+            <PlantModel position={[26, -15, 26]} />
+            <BarrierModel position={[0, -15, -27.5]} />
+            <BarrierModel position={[-27.5, -15, -10]} rotation={[0, Math.PI / 2, 0]} />
+            <BarrierModel position={[-27.5, -15, 10]} rotation={[0, Math.PI / 2, 0]}/>
+            <BarrierModel position={[27.5, -15, -10]} rotation={[0, -Math.PI / 2, 0]}/>
+            <BarrierModel position={[27.5, -15, 10]} rotation={[0, -Math.PI / 2, 0]}/>
+            <BarrierModel position={[0, -15, 20.5]} />
+            {SAMPLE_IMAGES.map((imageData) => (
+              <ImageFrame key={imageData.id} imageData={imageData} />
+            ))}
+          </Canvas>
+
+          <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded-lg">
+            <p className="text-sm">
+              {isMobile
+                ? "Explore the lantern museum — use the controls below to move around"
+                : "Explore the lantern museum — click to look around and move using W A S D"}
+            </p>
+          </div>
+
+          <button
+            onClick={handleBackClick}
+            className="absolute top-4 right-4 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg transition-colors duration-300"
+          >
+            ← Back to Intro
+          </button>
+
+          <div className="absolute top-16 right-4 bg-black bg-opacity-50 text-white p-3 rounded-lg flex items-center space-x-2">
+            <label htmlFor="volume" className="text-sm">Volume:</label>
+            <input
+              id="volume"
+              type="range"
+              min="0"
+              max="1"
+              step="0.01"
+              value={volume}
+              onChange={handleVolumeChange}
+              className="w-24 accent-amber-500"
+            />
+          </div>
+
+          <MobileControls onMove={handleMobileMove} isMobile={isMobile} />
+        </>
+      ) : (
+        <div className="min-h-screen bg-black relative flex items-center justify-center overflow-hidden px-8">
+  {/* Green particles floating in the background */}
+  <div className="absolute inset-0 pointer-events-none">
+    {Array.from({ length: 25 }).map((_, i) => (
       <div
         key={i}
-        className="absolute w-1.5 h-1.5 bg-green-400 rounded-full opacity-20 animate-sparkle"
+        className="absolute w-1.5 h-1.5 bg-green-400 rounded-full opacity-40 animate-float-fade"
         style={{
           top: `${Math.random() * 100}%`,
           left: `${Math.random() * 100}%`,
@@ -650,116 +566,77 @@ const Gallery3D3: React.FC = () => {
     ))}
   </div>
 
-  {/* Main content */}
-  <div className="relative z-10 flex flex-col-reverse md:flex-row items-center gap-16 max-w-7xl w-full">
-    {/* Left: Image of person holding lantern */}
-    <div className="flex-1 flex justify-center items-center">
-      <div className="relative w-[400px] h-[500px] rounded-xl overflow-hidden shadow-2xl shadow-green-400/30 border border-green-400/20">
-        <img
-          src="/lantern-3.png" // 👉 Replace with your green-themed image
-          alt="Person holding lantern"
-          className="object-cover w-full h-full"
-        />
-      </div>
-    </div>
-
-    {/* Right: Text content */}
-    <div className="flex-1 space-y-5 text-left text-white">
-      <p className="uppercase text-sm tracking-widest text-green-200/60">Section 3</p>
-      <h2 className="text-3xl md:text-4xl font-medium italic text-green-100/90">
-        A moment of <span className="text-green-400 font-bold">connection</span>, where light carries meaning.
+  {/* Horizontal layout */}
+  <div className="relative z-10 flex flex-col md:flex-row items-center justify-between w-full max-w-7xl gap-16">
+    {/* Left side: Text content */}
+    <div className="flex-1 space-y-6 text-left">
+      <p className="uppercase text-sm text-white/50 tracking-widest">Section 3</p>
+      <h2 className="text-2xl md:text-3xl font-medium text-white/80 italic">
+        Honoring the hands behind <span className="text-green-400 font-semibold">Vietnamese lanterns</span> — where tradition lives in every fold.
       </h2>
 
-      <h1 className="text-6xl md:text-7xl font-extrabold tracking-tight leading-tight">
-        <span className="text-green-400">Touch</span>{" "}
-        <span className="block text-white">of Light</span>
+      <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight leading-tight">
+        <span className="text-green-400">Craft</span>{" "}
+        <span className="block text-white">in Bloom</span>
       </h1>
 
-      <p className="text-white/80 text-lg max-w-lg leading-relaxed">
-        Feel the spirit of the lantern—held close, glowing warm. A gesture of care, memory, and heritage passed between generations.
+      <p className="text-xl md:text-2xl text-white/70 font-light">
+        The soul of lanterns lies in the hands that shape them
+      </p>
+
+      <p className="text-white/70 text-lg max-w-lg leading-relaxed">
+        Behind every glowing lantern is the quiet artistry of skilled Vietnamese craftsmen. Using humble materials like bamboo, rattan, and colored paper, they shape light into poetry — one careful cut, one delicate fold at a time.
       </p>
 
       <button
         onClick={handleDiscoverClick}
-        className="mt-4 group bg-green-400 hover:bg-green-300 text-black font-semibold py-4 px-10 rounded-full text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-green-400/30"
+        className="mt-4 group bg-green-400 hover:bg-green-300 text-black font-semibold py-4 px-10 rounded-full text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-green-400/25"
       >
-        Feel the Glow
+        Meet the Makers
       </button>
 
-      <p className="text-white/40 text-sm mt-2">
-        {isMobile ? "Tap to explore light stories" : "Click & drag to feel the connection"}
+      <p className="text-white/40 text-sm mt-3">
+        {isMobile ? "Tap to explore the artistry" : "Use W A S D to walk among the makers"}
       </p>
+    </div>
+
+    {/* Right side: Image */}
+    <div className="flex-1 hidden lg:flex items-center justify-center">
+      <div className="w-full h-[400px] rounded-xl border border-green-400/20 bg-white/5 backdrop-blur-sm flex items-center justify-center text-white/30">
+        <img
+          src="/lantern-3.png"
+          alt="Lantern Craftsman preview"
+          className="object-cover w-full h-full"
+        />
+      </div>
     </div>
   </div>
 
-  {/* Sparkle animation */}
+  {/* Floating effect animation */}
   <style jsx>{`
-    @keyframes sparkle {
+    @keyframes floatFade {
       0% {
         transform: translateY(0px) scale(1);
-        opacity: 0.2;
+        opacity: 0.4;
       }
       50% {
-        transform: translateY(-10px) scale(1.3);
-        opacity: 0.6;
+        transform: translateY(-20px) scale(1.2);
+        opacity: 0.8;
       }
       100% {
-        transform: translateY(-20px) scale(0.8);
+        transform: translateY(-40px) scale(0.8);
         opacity: 0;
       }
     }
-    .animate-sparkle {
-      animation: sparkle 6s ease-in-out infinite;
+    .animate-float-fade {
+      animation: floatFade 5s ease-in-out infinite;
     }
   `}</style>
 </div>
 
 
-    )
-  }
 
-  return (
-    <div
-      id="gallery-wrapper"
-      ref={galleryRef}
-      className="w-full h-screen relative"
-    >
-      <Canvas camera={{ fov: 75, near: 0.1, far: 1000, position: [2, 1.5, 25] }}>
-        <ambientLight intensity={1.2} color="#FFE8C2" />
-        <pointLight position={[10, 10, 10]} intensity={0.5} />
-        <ArtBlocks blocksRef={artBlocksRef} />
-        <FreeMovementControls
-          artBlocksRef={artBlocksRef}
-          mobileControls={mobileControlsRef}
-        />
-        <WallBackground />
-        <PlantModel position={[-46, -5, -46]} />
-        <PlantModel position={[46, -5, -46]} />
-        <PlantModel position={[-46, -5, 46]} />
-        <PlantModel position={[46, -5, 46]} />
-        <BarrierModel position={[0, -5, 16]} />
-        <BarrierModel position={[0, -5, -27]} />
-        {SAMPLE_IMAGES.map((imageData) => (
-          <ImageFrame key={imageData.id} imageData={imageData} />
-        ))}
-      </Canvas>
-
-      <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded-lg">
-        <p className="text-sm">
-          {isMobile
-            ? "Explore the lantern museum — use the controls below to move around"
-            : "Explore the lantern museum — click to look around and move using W A S D"}
-        </p>
-      </div>
-
-      <button
-        onClick={handleBackClick}
-        className="absolute top-4 right-4 bg-amber-500 hover:bg-amber-600 text-white px-4 py-2 rounded-lg transition-colors duration-300"
-      >
-        ← Back to Intro
-      </button>
-
-      <MobileControls onMove={handleMobileMove} isMobile={isMobile} />
+      )}
     </div>
   )
 }
