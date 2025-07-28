@@ -7,7 +7,7 @@ import { TextureLoader } from 'three'
 import PlantModel from './ui/plant-model'
 import BarrierModel from './ui/barrier-model'
 import { Html, OrbitControls } from '@react-three/drei'
-import ArrowControls from './ArrowControls'
+import StarLoader from '@/components/starloader'
 
 // Interface mô tả thông tin của một bức tranh
 interface ImageData {
@@ -476,9 +476,9 @@ const Gallery3D: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [isMobile, setIsMobile] = useState(false)
   const [showGallery, setShowGallery] = useState(false)
-  const [volume, setVolume] = useState(0.5) // Mức âm lượng mặc định (0.0 - 1.0)
+  const [volume, setVolume] = useState(0.5)
+  const [isLoadingScene, setIsLoadingScene] = useState(false)
 
-  // Khởi tạo audio
   useEffect(() => {
     audioRef.current = new Audio('/Lanterns-at-Dusk.mp3')
     audioRef.current.loop = true
@@ -492,7 +492,6 @@ const Gallery3D: React.FC = () => {
     }
   }, [])
 
-  // Cập nhật âm lượng khi volume thay đổi
   useEffect(() => {
     if (audioRef.current) {
       audioRef.current.volume = volume
@@ -514,6 +513,7 @@ const Gallery3D: React.FC = () => {
   }
 
   const handleDiscoverClick = async () => {
+    setIsLoadingScene(true)
     setShowGallery(true)
 
     if (audioRef.current) {
@@ -555,7 +555,6 @@ const Gallery3D: React.FC = () => {
     }
   }
 
-  // Xử lý thay đổi âm lượng
   const handleVolumeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newVolume = parseFloat(e.target.value)
     setVolume(newVolume)
@@ -569,7 +568,13 @@ const Gallery3D: React.FC = () => {
     >
       {showGallery ? (
         <>
-          <Canvas camera={{ fov: 75, near: 0.1, far: 1000, position: [2, 1.5, 25] }}>
+          {isLoadingScene && (
+            <div className="absolute inset-0 z-50 flex items-center justify-center bg-black">
+              <StarLoader />
+            </div>
+          )}
+
+          <Canvas onCreated={() => setIsLoadingScene(false)} camera={{ fov: 75, near: 0.1, far: 1000, position: [2, 1.5, 25] }}>
             <ambientLight intensity={1.2} color="#FFE8C2" />
             <pointLight position={[10, 10, 10]} intensity={0.5} />
             <CenterWall ref={centerWallRef} />
@@ -604,7 +609,6 @@ const Gallery3D: React.FC = () => {
             ← Back to Intro
           </button>
 
-          {/* Thanh trượt điều chỉnh âm lượng */}
           <div className="absolute top-16 right-4 bg-black bg-opacity-50 text-white p-3 rounded-lg flex items-center space-x-2">
             <label htmlFor="volume" className="text-sm">Volume:</label>
             <input

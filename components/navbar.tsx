@@ -33,7 +33,7 @@ export default function Navbar() {
         showNav ? 'translate-y-0' : '-translate-y-full'
       )}
     >
-      <div className="bg-black/90 backdrop-blur-md shadow-md">
+      <div className="bg-gradient-to-b from-black/95 via-black/80 to-transparent backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(255,215,0,0.1)]">
         <div className="container mx-auto px-6">
           <div className="flex items-center justify-between h-24">
             {/* Logo */}
@@ -56,7 +56,7 @@ export default function Navbar() {
                 <Link
                   key={label}
                   href={`/${label.toLowerCase() === 'home' ? '' : label.toLowerCase()}`}
-                  className="text-gray-300 hover:text-white transition-colors duration-200"
+                  className="text-gray-300 hover:text-yellow-300 relative transition-colors duration-200 after:content-[''] after:block after:h-0.5 after:bg-yellow-300 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300 after:origin-left"
                 >
                   {label}
                 </Link>
@@ -99,7 +99,7 @@ export default function Navbar() {
                   <Link
                     key={label}
                     href={`/${label.toLowerCase() === 'home' ? '' : label.toLowerCase()}`}
-                    className="text-gray-300 hover:text-white transition-colors"
+                    className="text-gray-300 hover:text-yellow-300 transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
                     {label}

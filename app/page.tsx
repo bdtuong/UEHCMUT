@@ -7,6 +7,8 @@ import ChatbotFloating from "@/components/chatbot"
 import WelcomeSection from "@/components/welcome-section"
 import Gallery3D2 from "@/components/image-gallery-museum-2"
 import Gallery3D3 from "@/components/image-gallery-museum-3"
+import CulturalHeritage from "@/components/cultural-history-2"
+import CulturalHeritage2 from "@/components/cultural-heritage-3"
 export default function HomePage() {
   return (
     <main className="min-h-screen">
@@ -15,9 +17,9 @@ export default function HomePage() {
       <VideoSection />
       <CulturalHistory />
       <Gallery3D />
-      <CulturalHistory />
+      <CulturalHeritage />
       <Gallery3D2 />
-      <CulturalHistory />
+      <CulturalHeritage2 />
       <Gallery3D3 />
       <FeaturedProducts />
       <ChatbotFloating />
