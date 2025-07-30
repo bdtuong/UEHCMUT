@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useEffect, useMemo, useState } from 'react'
+import React, { useRef, useEffect, useMemo, useState, createContext, useContext } from 'react'
 import { Canvas, useThree, useLoader, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { TextureLoader } from 'three'
@@ -26,8 +26,8 @@ const SAMPLE_IMAGES: ImageData[] = [
     id: '1',
     title: 'Northern Wall Center',
     artist: 'Artist A',
-    description: 'Center of back wall.',
-    imageUrl: '/mock-img.jpg',
+    description: 'This painting captures the poetic essence of Hoi An’s lantern festival, where tradition and craftsmanship converge under the golden glow of countless hand-crafted lanterns. Each detail tells a story of cultural resilience, passed down through generations of skilled artisans. Visitors are immersed in a gentle dance of light and shadow, evoking nostalgic memories of festive nights, communal laughter, and timeless beauty. Through this work, the artist not only preserves a fading tradition but also invites modern audiences to pause, reflect, and reconnect with the soulful artistry of Vietnam’s cultural heritage.',
+    imageUrl: '/room-2/1.jpg',
     position: [0, 0, -29.9],
     size: [24, 16],
   },
@@ -36,7 +36,7 @@ const SAMPLE_IMAGES: ImageData[] = [
     title: 'Western Wall Art 1',
     artist: 'Artist B',
     description: 'Left wall artwork.',
-    imageUrl: '/mock-img.jpg',
+    imageUrl: '/room-2/2.jpg',
     position: [-29.9, 0, -10],
     size: [16, 12],
   },
@@ -45,7 +45,7 @@ const SAMPLE_IMAGES: ImageData[] = [
     title: 'Western Wall Art 2',
     artist: 'Artist C',
     description: 'Left wall artwork.',
-    imageUrl: '/mock-img.jpg',
+    imageUrl: '/room-2/3.jpg',
     position: [-29.9, 0, 10],
     size: [16, 12],
   },
@@ -54,7 +54,7 @@ const SAMPLE_IMAGES: ImageData[] = [
     title: 'Eastern Wall Art 1',
     artist: 'Artist D',
     description: 'Right wall artwork.',
-    imageUrl: '/mock-img.jpg',
+    imageUrl: '/room-2/4.jpg',
     position: [29.9, 0, -10],
     size: [16, 12],
   },
@@ -63,7 +63,7 @@ const SAMPLE_IMAGES: ImageData[] = [
     title: 'Eastern Wall Art 2',
     artist: 'Artist E',
     description: 'Right wall artwork.',
-    imageUrl: '/mock-img.jpg',
+    imageUrl: '/room-2/5.jpg',
     position: [29.9, 0, 10],
     size: [16, 12],
   },
@@ -72,11 +72,37 @@ const SAMPLE_IMAGES: ImageData[] = [
     title: 'Southern Wall Center',
     artist: 'Artist F',
     description: 'Front wall center.',
-    imageUrl: '/mock-img.jpg',
+    imageUrl: '/room-2/6.png',
     position: [0, 0, 29.9],
     size: [24, 16],
   },
 ]
+
+// Camera sync context
+const CameraSyncContext = createContext<{
+  cameraPosition: THREE.Vector3
+  cameraRotation: THREE.Euler
+  updateCamera: (position: THREE.Vector3, rotation: THREE.Euler) => void
+} | null>(null)
+
+// Component to sync camera in VR mode
+const CameraSync = ({ isLeftEye }: { isLeftEye: boolean }) => {
+  const { camera } = useThree()
+  const context = useContext(CameraSyncContext)
+  
+  useFrame(() => {
+    if (context && isLeftEye) {
+      // Left eye updates the shared camera state
+      context.updateCamera(camera.position.clone(), camera.rotation.clone())
+    } else if (context && !isLeftEye) {
+      // Right eye follows the shared camera state
+      camera.position.copy(context.cameraPosition)
+      camera.rotation.copy(context.cameraRotation)
+    }
+  })
+  
+  return null
+}
 
 const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
   const { camera } = useThree()
@@ -99,7 +125,7 @@ const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
 
   useFrame(() => {
     const distance = camera.position.distanceTo(position)
-    setShowInfo(distance < 8)
+    setShowInfo(distance < 24)
   })
 
   return (
@@ -125,11 +151,11 @@ const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
         <meshStandardMaterial map={texture} side={THREE.DoubleSide} />
       </mesh>
       {showInfo && (
-        <Html distanceFactor={10} position={[0, height / 2 + 0.5, 0]} transform sprite>
-          <div className="bg-white/90 backdrop-blur text-black p-2 rounded-md shadow-lg max-w-2xl text-sm">
-            <p className="font-semibold">{imageData.title}</p>
-            <p className="italic text-gray-600">{imageData.artist}</p>
-            <p>{imageData.description}</p>
+        <Html distanceFactor={10} position={[0, -height / 2 - 2, 0]} transform>
+          <div className="bg-black/95 text-white p-6 rounded-xl border border-yellow-500/40 shadow-2xl text-base leading-loose space-y-4 inline-block w-fit max-w-5xl">
+            <p className="font-bold text-xl text-yellow-400">{imageData.title}</p>
+            <p className="italic text-white/70 text-lg">{imageData.artist}</p>
+            <p className="text-white whitespace-pre-line">{imageData.description}</p>
           </div>
         </Html>
       )}
@@ -398,8 +424,18 @@ const Gallery3D2: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [isMobile, setIsMobile] = useState(false)
   const [showGallery, setShowGallery] = useState(false)
+  const [isVRMode, setIsVRMode] = useState(false)
   const [volume, setVolume] = useState(0.5)
   const [isLoadingScene, setIsLoadingScene] = useState(false)
+  
+  // VR camera sync state
+  const [cameraPosition, setCameraPosition] = useState(new THREE.Vector3(0, 0, 25))
+  const [cameraRotation, setCameraRotation] = useState(new THREE.Euler(0, 0, 0))
+  
+  const updateCamera = (position: THREE.Vector3, rotation: THREE.Euler) => {
+    setCameraPosition(position)
+    setCameraRotation(rotation)
+  }
 
   useEffect(() => {
     audioRef.current = new Audio('/Lanterns-at-Dusk.mp3')
@@ -434,9 +470,10 @@ const Gallery3D2: React.FC = () => {
     mobileControlsRef.current[direction] = pressed
   }
 
-  const handleDiscoverClick = async () => {
+  const handleDiscoverClick = async (vrMode = false) => {
     setIsLoadingScene(true)
     setShowGallery(true)
+    setIsVRMode(vrMode)
 
     if (audioRef.current) {
       try {
@@ -463,6 +500,7 @@ const Gallery3D2: React.FC = () => {
 
   const handleBackClick = async () => {
     setShowGallery(false)
+    setIsVRMode(false)
 
     if (audioRef.current) {
       audioRef.current.pause()
@@ -482,6 +520,30 @@ const Gallery3D2: React.FC = () => {
     setVolume(newVolume)
   }
 
+  const renderScene = (isLeftEye?: boolean) => (
+    <>
+      <ambientLight intensity={1.2} color="#FFE8C2" />
+      <pointLight position={[10, 10, 10]} intensity={0.5} />
+      <FreeMovementControls mobileControls={mobileControlsRef} />
+      {isVRMode && <CameraSync isLeftEye={isLeftEye || false} />}
+      <WallBackground />
+      <PlantModel position={[-26, -15, -26]} />
+      <PlantModel position={[26, -15, -26]} />
+      <PlantModel position={[-26, -15, 26]} />
+      <PlantModel position={[26, -15, 26]} />
+      <BarrierModel position={[0, -15, -27.5]} />
+      <BarrierModel position={[-27.5, -15, -10]} rotation={[0, Math.PI / 2, 0]} />
+      <BarrierModel position={[-27.5, -15, 10]} rotation={[0, Math.PI / 2, 0]}/>
+      <BarrierModel position={[27.5, -15, -10]} rotation={[0, -Math.PI / 2, 0]}/>
+      <BarrierModel position={[27.5, -15, 10]} rotation={[0, -Math.PI / 2, 0]}/>
+      <BarrierModel position={[0, -15, 20.5]} />
+
+      {SAMPLE_IMAGES.map((imageData) => (
+        <ImageFrame key={imageData.id} imageData={imageData} />
+      ))}
+    </>
+  )
+
   return (
     <div
       id="gallery-wrapper"
@@ -496,33 +558,48 @@ const Gallery3D2: React.FC = () => {
             </div>
           )}
 
-          <Canvas onCreated={() => setIsLoadingScene(false)} camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 0, 25] }}>
-            <ambientLight intensity={1.2} color="#FFE8C2" />
-            <pointLight position={[10, 10, 10]} intensity={0.5} />
-            <FreeMovementControls
-              mobileControls={mobileControlsRef}
-            />
-            <WallBackground />
-            <PlantModel position={[-26, -15, -26]} />
-            <PlantModel position={[26, -15, -26]} />
-            <PlantModel position={[-26, -15, 26]} />
-            <PlantModel position={[26, -15, 26]} />
-            <BarrierModel position={[0, -15, -27.5]} />
-            <BarrierModel position={[-27.5, -15, -10]} rotation={[0, Math.PI / 2, 0]} />
-            <BarrierModel position={[-27.5, -15, 10]} rotation={[0, Math.PI / 2, 0]}/>
-            <BarrierModel position={[27.5, -15, -10]} rotation={[0, -Math.PI / 2, 0]}/>
-            <BarrierModel position={[27.5, -15, 10]} rotation={[0, -Math.PI / 2, 0]}/>
-            <BarrierModel position={[0, -15, 20.5]} />
-            {SAMPLE_IMAGES.map((imageData) => (
-              <ImageFrame key={imageData.id} imageData={imageData} />
-            ))}
-          </Canvas>
+          {isVRMode ? (
+            // VR Mode with dual screens and camera sync
+            <CameraSyncContext.Provider value={{ cameraPosition, cameraRotation, updateCamera }}>
+              <div className="flex w-full h-full">
+                {/* Left Eye */}
+                <div className="w-1/2 h-full border-r border-gray-600">
+                  <Canvas 
+                    onCreated={() => setIsLoadingScene(false)} 
+                    camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 0, 25] }}
+                  >
+                    {renderScene(true)}
+                  </Canvas>
+                </div>
+                
+                {/* Right Eye */}
+                <div className="w-1/2 h-full">
+                  <Canvas 
+                    camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 0, 25] }}
+                  >
+                    {renderScene(false)}
+                  </Canvas>
+                </div>
+              </div>
+            </CameraSyncContext.Provider>
+          ) : (
+            // Normal Mode with single screen
+            <Canvas 
+              onCreated={() => setIsLoadingScene(false)} 
+              camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 0, 25] }}
+            >
+              {renderScene()}
+            </Canvas>
+          )}
 
           <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded-lg">
             <p className="text-sm">
-              {isMobile
+              {isVRMode 
+                ? "VR Mode: Put on your VR headset for immersive experience"
+                : isMobile
                 ? "Explore the lantern museum — use the controls below to move around"
-                : "Explore the lantern museum — click to look around and move using W A S D"}
+                : "Explore the lantern museum — click to look around and move using W A S D"
+              }
             </p>
           </div>
 
@@ -547,95 +624,113 @@ const Gallery3D2: React.FC = () => {
             />
           </div>
 
+          {isVRMode && (
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-green-600 bg-opacity-90 text-white px-4 py-2 rounded-lg">
+              VR Mode Active
+            </div>
+          )}
+
           <MobileControls onMove={handleMobileMove} isMobile={isMobile} />
         </>
       ) : (
         <div className="min-h-screen bg-black relative flex items-center justify-center overflow-hidden px-8">
-  {/* Yellow particles floating in the background */}
-  <div className="absolute inset-0 pointer-events-none">
-    {Array.from({ length: 25 }).map((_, i) => (
-      <div
-        key={i}
-        className="absolute w-1.5 h-1.5 bg-yellow-400 rounded-full opacity-40 animate-float-fade"
-        style={{
-          top: `${Math.random() * 100}%`,
-          left: `${Math.random() * 100}%`,
-          animationDelay: `${Math.random() * 5}s`,
-        }}
-      />
-    ))}
-  </div>
+          {/* Yellow particles floating in the background */}
+          <div className="absolute inset-0 pointer-events-none">
+            {Array.from({ length: 25 }).map((_, i) => (
+              <div
+                key={i}
+                className="absolute w-1.5 h-1.5 bg-yellow-400 rounded-full opacity-40 animate-float-fade"
+                style={{
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 5}s`,
+                }}
+              />
+            ))}
+          </div>
 
-  {/* Horizontal layout */}
-  <div className="relative z-10 flex flex-col-reverse md:flex-row items-center justify-between w-full max-w-7xl gap-16">
-    {/* Left side: Image */}
-    <div className="flex-1 hidden lg:flex items-center justify-center">
-      <div className="w-full h-[400px] rounded-xl border border-yellow-400/20 bg-white/5 backdrop-blur-sm flex items-center justify-center text-white/30">
-        <img
-          src="/lantern-2.png"
-          alt="Hoi An Lantern preview"
-          className="object-cover w-full h-full"
-        />
-      </div>
-    </div>
+          {/* Horizontal layout */}
+          <div className="relative z-10 flex flex-col-reverse md:flex-row items-center justify-between w-full max-w-7xl gap-16">
+            {/* Left side: Image */}
+            <div className="flex-1 hidden lg:flex items-center justify-center">
+              <div className="w-full h-[400px] rounded-xl border border-yellow-400/20 bg-white/5 backdrop-blur-sm flex items-center justify-center text-white/30">
+                <img
+                  src="/lantern-2.png"
+                  alt="Hoi An Lantern preview"
+                  className="object-cover w-full h-full"
+                />
+              </div>
+            </div>
 
-    {/* Right side: Text */}
-    <div className="flex-1 space-y-6 text-left">
-      <p className="uppercase text-sm text-white/50 tracking-widest">Section 2</p>
-      <h2 className="text-2xl md:text-3xl font-medium text-white/80 italic">
-        The timeless glow of <span className="text-yellow-400 font-semibold">Hoi An Lanterns</span>, weaving tradition into modern wonder.
-      </h2>
+            {/* Right side: Text */}
+            <div className="flex-1 space-y-6 text-left">
+              <p className="uppercase text-sm text-white/50 tracking-widest">Section 2</p>
+              <h2 className="text-2xl md:text-3xl font-medium text-white/80 italic">
+                The timeless glow of <span className="text-yellow-400 font-semibold">Hoi An Lanterns</span>, weaving tradition into modern wonder.
+              </h2>
 
-      <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight leading-tight">
-        <span className="text-yellow-400">Heritage</span>{" "}
-        <span className="block text-white">Illuminated</span>
-      </h1>
+              <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight leading-tight">
+                <span className="text-yellow-400">Heritage</span>{" "}
+                <span className="block text-white">Illuminated</span>
+              </h1>
 
-      <p className="text-xl md:text-2xl text-white/70 font-light">
-        Step into Hội An's magical nights
-      </p>
+              <p className="text-xl md:text-2xl text-white/70 font-light">
+                Step into Hội An's magical nights
+              </p>
 
-      <p className="text-white/70 text-lg max-w-lg leading-relaxed">
-        Experience the poetic beauty of Hội An through its iconic lanterns — digitally revived in an interactive, immersive space that honors centuries of craftsmanship.
-      </p>
+              <p className="text-white/70 text-lg max-w-lg leading-relaxed">
+                Experience the poetic beauty of Hội An through its iconic lanterns — digitally revived in an interactive, immersive space that honors centuries of craftsmanship.
+              </p>
 
-      <button
-        onClick={handleDiscoverClick}
-        className="mt-4 group bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-4 px-10 rounded-full text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-yellow-400/25"
-      >
-        Enter the Light
-      </button>
+              {/* Button container */}
+              <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                <button
+                  onClick={() => handleDiscoverClick(false)}
+                  className="group bg-yellow-400 hover:bg-yellow-300 text-black font-semibold py-4 px-10 rounded-full text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-yellow-400/25"
+                >
+                  Enter the Light
+                </button>
 
-      <p className="text-white/40 text-sm mt-3">
-        {isMobile ? "Tap to explore" : "Use W A S D to walk through Hoi An"}
-      </p>
-    </div>
-  </div>
+                <button
+                  onClick={() => handleDiscoverClick(true)}
+                  className="group bg-blue-600 hover:bg-blue-500 text-white font-semibold py-4 px-10 rounded-full text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-600/25 border-2 border-blue-400"
+                >
+                  <span className="flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                    </svg>
+                    Turn into VR
+                  </span>
+                </button>
+              </div>
 
-  {/* Floating effect animation */}
-  <style jsx>{`
-    @keyframes floatFade {
-      0% {
-        transform: translateY(0px) scale(1);
-        opacity: 0.4;
-      }
-      50% {
-        transform: translateY(-20px) scale(1.2);
-        opacity: 0.8;
-      }
-      100% {
-        transform: translateY(-40px) scale(0.8);
-        opacity: 0;
-      }
-    }
-    .animate-float-fade {
-      animation: floatFade 5s ease-in-out infinite;
-    }
-  `}</style>
-</div>
+              <p className="text-white/40 text-sm mt-3">
+                {isMobile ? "Tap to explore in normal or VR mode" : "Use W A S D to walk through Hoi An - Try VR for immersive experience"}
+              </p>
+            </div>
+          </div>
 
-
-
+          {/* Floating effect animation */}
+          <style jsx>{`
+            @keyframes floatFade {
+              0% {
+                transform: translateY(0px) scale(1);
+                opacity: 0.4;
+              }
+              50% {
+                transform: translateY(-20px) scale(1.2);
+                opacity: 0.8;
+              }
+              100% {
+                transform: translateY(-40px) scale(0.8);
+                opacity: 0;
+              }
+            }
+            .animate-float-fade {
+              animation: floatFade 5s ease-in-out infinite;
+            }
+          `}</style>
+        </div>
       )}
     </div>
   )
