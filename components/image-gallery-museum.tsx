@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useEffect, useMemo, useState } from 'react'
+import React, { useRef, useEffect, useMemo, useState, createContext, useContext } from 'react'
 import { Canvas, useThree, useLoader, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { TextureLoader } from 'three'
@@ -132,6 +132,38 @@ const SAMPLE_IMAGES: ImageData[] = [
   },
 ]
 
+// Camera sync context for VR mode
+const CameraSyncContext = createContext<{
+  sharedPosition: THREE.Vector3
+  sharedRotation: THREE.Euler
+  updateSharedCamera: (position: THREE.Vector3, rotation: THREE.Euler) => void
+} | null>(null)
+
+// Component to sync camera in VR mode
+const CameraSync = ({ eyeId }: { eyeId: 'left' | 'right' }) => {
+  const { camera, gl } = useThree()
+  const context = useContext(CameraSyncContext)
+  const lastUpdateTime = useRef<number>(0)
+  
+  useFrame(() => {
+    if (!context) return
+    
+    const now: number = Date.now()
+    
+    // Both eyes can update the shared state, but with a small delay to prevent conflicts
+    if (now - lastUpdateTime.current > 16) { // ~60fps throttling
+      context.updateSharedCamera(camera.position.clone(), camera.rotation.clone())
+      lastUpdateTime.current = now
+    }
+    
+    // Apply shared state to current camera
+    camera.position.copy(context.sharedPosition)
+    camera.rotation.copy(context.sharedRotation)
+  })
+  
+  return null
+}
+
 const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
   const { camera } = useThree()
   const texture = useLoader(TextureLoader, imageData.imageUrl)
@@ -257,8 +289,10 @@ const MobileControls: React.FC<{
 const FreeMovementControls: React.FC<{
   centerWallRef: React.RefObject<THREE.Mesh>
   mobileControls: React.MutableRefObject<{ [key: string]: boolean }>
-}> = ({ centerWallRef, mobileControls }) => {
+  isVRMode?: boolean
+}> = ({ centerWallRef, mobileControls, isVRMode = false }) => {
   const { camera, gl } = useThree()
+  const context = useContext(CameraSyncContext)
   const keys = useRef<{ [key: string]: boolean }>({})
   const velocity = useRef(new THREE.Vector3())
   const direction = new THREE.Vector3()
@@ -298,6 +332,11 @@ const FreeMovementControls: React.FC<{
       const quaternion = new THREE.Quaternion()
       quaternion.setFromEuler(new THREE.Euler(pitch.current, yaw.current, 0, 'YXZ'))
       camera.quaternion.copy(quaternion)
+      
+      // Update shared state in VR mode
+      if (isVRMode && context) {
+        context.updateSharedCamera(camera.position.clone(), camera.rotation.clone())
+      }
     }
 
     const onMouseDown = (e: MouseEvent) => {
@@ -349,7 +388,7 @@ const FreeMovementControls: React.FC<{
       window.removeEventListener('touchend', onTouchEnd)
       window.removeEventListener('touchmove', onTouchMove)
     }
-  }, [gl, camera])
+  }, [gl, camera, isVRMode, context])
 
   useFrame((_, delta) => {
     const speed = 5
@@ -388,6 +427,11 @@ const FreeMovementControls: React.FC<{
 
     camera.position.copy(nextPosition)
     camera.position.y = THREE.MathUtils.clamp(camera.position.y, -4.5, 8)
+    
+    // Update shared state in VR mode
+    if (isVRMode && context) {
+      context.updateSharedCamera(camera.position.clone(), camera.rotation.clone())
+    }
   })
 
   return null
@@ -476,8 +520,18 @@ const Gallery3D: React.FC = () => {
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [isMobile, setIsMobile] = useState(false)
   const [showGallery, setShowGallery] = useState(false)
+  const [isVRMode, setIsVRMode] = useState(false)
   const [volume, setVolume] = useState(0.5)
   const [isLoadingScene, setIsLoadingScene] = useState(false)
+  
+  // VR camera sync state
+  const [sharedPosition, setSharedPosition] = useState(new THREE.Vector3(2, 1.5, 25))
+  const [sharedRotation, setSharedRotation] = useState(new THREE.Euler(0, 0, 0))
+  
+  const updateSharedCamera = (position: THREE.Vector3, rotation: THREE.Euler) => {
+    setSharedPosition(position.clone())
+    setSharedRotation(rotation.clone())
+  }
 
   useEffect(() => {
     audioRef.current = new Audio('/Lanterns-at-Dusk.mp3')
@@ -512,9 +566,10 @@ const Gallery3D: React.FC = () => {
     mobileControlsRef.current[direction] = pressed
   }
 
-  const handleDiscoverClick = async () => {
+  const handleDiscoverClick = async (vrMode = false) => {
     setIsLoadingScene(true)
     setShowGallery(true)
+    setIsVRMode(vrMode)
 
     if (audioRef.current) {
       try {
@@ -541,6 +596,7 @@ const Gallery3D: React.FC = () => {
 
   const handleBackClick = async () => {
     setShowGallery(false)
+    setIsVRMode(false)
 
     if (audioRef.current) {
       audioRef.current.pause()
@@ -560,6 +616,30 @@ const Gallery3D: React.FC = () => {
     setVolume(newVolume)
   }
 
+  const renderScene = (eyeId?: 'left' | 'right') => (
+    <>
+      <ambientLight intensity={1.2} color="#FFE8C2" />
+      <pointLight position={[10, 10, 10]} intensity={0.5} />
+      <CenterWall ref={centerWallRef} />
+      <FreeMovementControls
+        centerWallRef={centerWallRef}
+        mobileControls={mobileControlsRef}
+        isVRMode={isVRMode}
+      />
+      {isVRMode && eyeId && <CameraSync eyeId={eyeId} />}
+      <WallBackground />
+      <PlantModel position={[-46, -5, -46]} />
+      <PlantModel position={[46, -5, -46]} />
+      <PlantModel position={[-46, -5, 46]} />
+      <PlantModel position={[46, -5, 46]} />
+      <BarrierModel position={[0, -5, 16]} />
+      <BarrierModel position={[0, -5, -27]} />
+      {SAMPLE_IMAGES.map((imageData) => (
+        <ImageFrame key={imageData.id} imageData={imageData} />
+      ))}
+    </>
+  )
+
   return (
     <div
       id="gallery-wrapper"
@@ -574,31 +654,48 @@ const Gallery3D: React.FC = () => {
             </div>
           )}
 
-          <Canvas onCreated={() => setIsLoadingScene(false)} camera={{ fov: 75, near: 0.1, far: 1000, position: [2, 1.5, 25] }}>
-            <ambientLight intensity={1.2} color="#FFE8C2" />
-            <pointLight position={[10, 10, 10]} intensity={0.5} />
-            <CenterWall ref={centerWallRef} />
-            <FreeMovementControls
-              centerWallRef={centerWallRef}
-              mobileControls={mobileControlsRef}
-            />
-            <WallBackground />
-            <PlantModel position={[-46, -5, -46]} />
-            <PlantModel position={[46, -5, -46]} />
-            <PlantModel position={[-46, -5, 46]} />
-            <PlantModel position={[46, -5, 46]} />
-            <BarrierModel position={[0, -5, 16]} />
-            <BarrierModel position={[0, -5, -27]} />
-            {SAMPLE_IMAGES.map((imageData) => (
-              <ImageFrame key={imageData.id} imageData={imageData} />
-            ))}
-          </Canvas>
+          {isVRMode ? (
+            // VR Mode with dual screens and camera sync
+            <CameraSyncContext.Provider value={{ sharedPosition, sharedRotation, updateSharedCamera }}>
+              <div className="flex w-full h-full">
+                {/* Left Eye */}
+                <div className="w-1/2 h-full border-r border-gray-600">
+                  <Canvas 
+                    onCreated={() => setIsLoadingScene(false)} 
+                    camera={{ fov: 75, near: 0.1, far: 1000, position: [2, 1.5, 25] }}
+                  >
+                    {renderScene('left')}
+                  </Canvas>
+                </div>
+                
+                {/* Right Eye */}
+                <div className="w-1/2 h-full">
+                  <Canvas 
+                    camera={{ fov: 75, near: 0.1, far: 1000, position: [2, 1.5, 25] }}
+                  >
+                    {renderScene('right')}
+                  </Canvas>
+                </div>
+              </div>
+            </CameraSyncContext.Provider>
+          ) : (
+            // Normal Mode with single screen
+            <Canvas 
+              onCreated={() => setIsLoadingScene(false)} 
+              camera={{ fov: 75, near: 0.1, far: 1000, position: [2, 1.5, 25] }}
+            >
+              {renderScene()}
+            </Canvas>
+          )}
 
           <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded-lg">
             <p className="text-sm">
-              {isMobile
+              {isVRMode 
+                ? "VR Mode: Both screens respond to drag - Put on your VR headset for immersive experience"
+                : isMobile
                 ? "Explore the lantern museum — use the controls below to move around"
-                : "Explore the lantern museum — click to look around and move using W A S D"}
+                : "Explore the lantern museum — click to look around and move using W A S D"
+              }
             </p>
           </div>
 
@@ -623,100 +720,118 @@ const Gallery3D: React.FC = () => {
             />
           </div>
 
+          {isVRMode && (
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-green-600 bg-opacity-90 text-white px-4 py-2 rounded-lg">
+              VR Mode Active - Both Eyes Synchronized
+            </div>
+          )}
+
           <MobileControls onMove={handleMobileMove} isMobile={isMobile} />
         </>
       ) : (
         <div className="min-h-screen bg-black relative flex items-center justify-center overflow-hidden px-8">
-  {/* Red particles floating in the background */}
-  <div className="absolute inset-0 pointer-events-none">
-    {Array.from({ length: 25 }).map((_, i) => (
-      <div
-        key={i}
-        className="absolute w-1.5 h-1.5 bg-red-500 rounded-full opacity-40 animate-float-fade"
-        style={{
-          top: `${Math.random() * 100}%`,
-          left: `${Math.random() * 100}%`,
-          animationDelay: `${Math.random() * 5}s`,
-        }}
-      />
-    ))}
-  </div>
+          {/* Red particles floating in the background */}
+          <div className="absolute inset-0 pointer-events-none">
+            {Array.from({ length: 25 }).map((_, i) => (
+              <div
+                key={i}
+                className="absolute w-1.5 h-1.5 bg-red-500 rounded-full opacity-40 animate-float-fade"
+                style={{
+                  top: `${Math.random() * 100}%`,
+                  left: `${Math.random() * 100}%`,
+                  animationDelay: `${Math.random() * 5}s`,
+                }}
+              />
+            ))}
+          </div>
 
-  {/* Horizontal layout */}
-  <div className="relative z-10 flex flex-col md:flex-row items-center justify-between w-full max-w-7xl gap-16">
-    {/* Left side: Text content */}
-    <div className="flex-1 space-y-6 text-left">
-      {/* Section intro */}
-      <p className="uppercase text-sm text-white/50 tracking-widest">Section 1</p>
-      <h2 className="text-2xl md:text-3xl font-medium text-white/80 italic">
-        The beginning of the <span className="text-red-500 font-semibold">light culture</span>, where tradition meets imagination.
-      </h2>
+          {/* Horizontal layout */}
+          <div className="relative z-10 flex flex-col md:flex-row items-center justify-between w-full max-w-7xl gap-16">
+            {/* Left side: Text content */}
+            <div className="flex-1 space-y-6 text-left">
+              {/* Section intro */}
+              <p className="uppercase text-sm text-white/50 tracking-widest">Section 1</p>
+              <h2 className="text-2xl md:text-3xl font-medium text-white/80 italic">
+                The beginning of the <span className="text-red-500 font-semibold">light culture</span>, where tradition meets imagination.
+              </h2>
 
-      {/* Title */}
-      <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight leading-tight">
-        <span className="text-red-500">Lantern</span>{" "}
-        <span className="block text-white">World</span>
-      </h1>
+              {/* Title */}
+              <h1 className="text-6xl md:text-8xl font-extrabold tracking-tight leading-tight">
+                <span className="text-red-500">Lantern</span>{" "}
+                <span className="block text-white">World</span>
+              </h1>
 
-      {/* Subtitle */}
-      <p className="text-xl md:text-2xl text-white/70 font-light">
-        A 3D Art Museum experience
-      </p>
+              {/* Subtitle */}
+              <p className="text-xl md:text-2xl text-white/70 font-light">
+                A 3D Art Museum experience
+              </p>
 
-      {/* Description */}
-      <p className="text-white/70 text-lg max-w-lg leading-relaxed">
-        Step into a magical universe of lanterns — a modern reinterpretation of Vietnamese light culture in an immersive, interactive space.
-      </p>
+              {/* Description */}
+              <p className="text-white/70 text-lg max-w-lg leading-relaxed">
+                Step into a magical universe of lanterns — a modern reinterpretation of Vietnamese light culture in an immersive, interactive space.
+              </p>
 
-      {/* Button */}
-      <button
-        onClick={handleDiscoverClick}
-        className="mt-4 group bg-red-500 hover:bg-red-400 text-black font-semibold py-4 px-10 rounded-full text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-red-500/25"
-      >
-        Discover
-      </button>
+              {/* Button container */}
+              <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                <button
+                  onClick={() => handleDiscoverClick(false)}
+                  className="group bg-red-500 hover:bg-red-400 text-black font-semibold py-4 px-10 rounded-full text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-red-500/25"
+                >
+                  Discover
+                </button>
 
-      {/* Controls hint */}
-      <p className="text-white/40 text-sm mt-3">
-        {isMobile ? "Tap to move" : "Use W A S D to move"}
-      </p>
-    </div>
+                <button
+                  onClick={() => handleDiscoverClick(true)}
+                  className="group bg-blue-600 hover:bg-blue-500 text-white font-semibold py-4 px-10 rounded-full text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-600/25 border-2 border-blue-400"
+                >
+                  <span className="flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                    </svg>
+                    Turn into VR
+                  </span>
+                </button>
+              </div>
 
-    {/* Right side: Placeholder for illustration or 3D preview */}
-    <div className="flex-1 hidden md:flex items-center justify-center">
-      <div className="w-full h-[400px] rounded-xl border border-red-500/20 bg-white/5 backdrop-blur-sm flex items-center justify-center text-white/30">
-        <img
-          src="/lantern-1.png"
-          alt="Lantern preview"
-          className="object-cover w-full h-full"
-        />
-      </div>
-    </div>
-  </div>
+              {/* Controls hint */}
+              <p className="text-white/40 text-sm mt-3">
+                {isMobile ? "Tap to explore in normal or VR mode" : "Use W A S D to walk through the museum - Try VR for immersive experience"}
+              </p>
+            </div>
 
-  {/* Floating effect animation */}
-  <style jsx>{`
-    @keyframes floatFade {
-      0% {
-        transform: translateY(0px) scale(1);
-        opacity: 0.4;
-      }
-      50% {
-        transform: translateY(-20px) scale(1.2);
-        opacity: 0.8;
-      }
-      100% {
-        transform: translateY(-40px) scale(0.8);
-        opacity: 0;
-      }
-    }
-    .animate-float-fade {
-      animation: floatFade 5s ease-in-out infinite;
-    }
-  `}</style>
-</div>
+            {/* Right side: Placeholder for illustration or 3D preview */}
+            <div className="flex-1 hidden md:flex items-center justify-center">
+              <div className="w-full h-[400px] rounded-xl border border-red-500/20 bg-white/5 backdrop-blur-sm flex items-center justify-center text-white/30">
+                <img
+                  src="/lantern-1.png"
+                  alt="Lantern preview"
+                  className="object-cover w-full h-full"
+                />
+              </div>
+            </div>
+          </div>
 
-
+          {/* Floating effect animation */}
+          <style jsx>{`
+            @keyframes floatFade {
+              0% {
+                transform: translateY(0px) scale(1);
+                opacity: 0.4;
+              }
+              50% {
+                transform: translateY(-20px) scale(1.2);
+                opacity: 0.8;
+              }
+              100% {
+                transform: translateY(-40px) scale(0.8);
+                opacity: 0;
+              }
+            }
+            .animate-float-fade {
+              animation: floatFade 5s ease-in-out infinite;
+            }
+          `}</style>
+        </div>
       )}
     </div>
   )

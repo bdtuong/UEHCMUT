@@ -368,9 +368,37 @@ export default function ModernLanternDesigner() {
           </p>
           
           <div className="mb-10 relative">
-            <div className="w-80 h-80 mx-auto bg-gradient-to-br from-red-500/20 to-yellow-500/20 rounded-full flex items-center justify-center backdrop-blur-sm border border-red-500/30">
-              <div className="text-8xl animate-pulse">🏮</div>
+            <div className="relative w-80 h-80 mx-auto rounded-full flex items-center justify-center border-4 border-red-600 overflow-hidden shadow-inner">
+            {/* Hình ảnh trong vòng tròn */}
+            <img
+              src="/lanterndesign.jpg" // <-- thay bằng ảnh thật của bạn
+              alt="Lantern Preview"
+              className="w-full h-full object-cover rounded-full z-10"
+            />
+
+            {/* Vòng tròn đỏ xoay bên ngoài */}
+            <div className="absolute inset-0 rounded-full border-4 border-transparent z-0 animate-spin-slow">
+              <div className="absolute inset-0 rounded-full border-4 border-red-500 opacity-50 blur-md" />
             </div>
+
+            {/* Style animation riêng */}
+            <style jsx>{`
+              .animate-spin-slow {
+                animation: spin 6s linear infinite;
+              }
+
+              @keyframes spin {
+                0% {
+                  transform: rotate(0deg);
+                }
+                100% {
+                  transform: rotate(360deg);
+                }
+              }
+            `}</style>
+          </div>
+
+
             <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-transparent rounded-full blur-3xl"></div>
           </div>
 

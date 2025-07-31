@@ -78,27 +78,33 @@ const SAMPLE_IMAGES: ImageData[] = [
   },
 ]
 
-// Camera sync context
+// Camera sync context - Updated to handle shared state better
 const CameraSyncContext = createContext<{
-  cameraPosition: THREE.Vector3
-  cameraRotation: THREE.Euler
-  updateCamera: (position: THREE.Vector3, rotation: THREE.Euler) => void
+  sharedPosition: THREE.Vector3
+  sharedRotation: THREE.Euler
+  updateSharedCamera: (position: THREE.Vector3, rotation: THREE.Euler) => void
 } | null>(null)
 
-// Component to sync camera in VR mode
-const CameraSync = ({ isLeftEye }: { isLeftEye: boolean }) => {
-  const { camera } = useThree()
+// Component to sync camera in VR mode - Fixed to allow both eyes to control
+const CameraSync = ({ eyeId }: { eyeId: 'left' | 'right' }) => {
+  const { camera, gl } = useThree()
   const context = useContext(CameraSyncContext)
+  const lastUpdateTime = useRef<number>(0)
   
   useFrame(() => {
-    if (context && isLeftEye) {
-      // Left eye updates the shared camera state
-      context.updateCamera(camera.position.clone(), camera.rotation.clone())
-    } else if (context && !isLeftEye) {
-      // Right eye follows the shared camera state
-      camera.position.copy(context.cameraPosition)
-      camera.rotation.copy(context.cameraRotation)
+    if (!context) return
+    
+    const now: number = Date.now()
+    
+    // Both eyes can update the shared state, but with a small delay to prevent conflicts
+    if (now - lastUpdateTime.current > 16) { // ~60fps throttling
+      context.updateSharedCamera(camera.position.clone(), camera.rotation.clone())
+      lastUpdateTime.current = now
     }
+    
+    // Apply shared state to current camera
+    camera.position.copy(context.sharedPosition)
+    camera.rotation.copy(context.sharedRotation)
   })
   
   return null
@@ -223,10 +229,13 @@ const MobileControls: React.FC<{
   )
 }
 
+// Updated FreeMovementControls to work with VR context
 const FreeMovementControls: React.FC<{
   mobileControls: React.MutableRefObject<{ [key: string]: boolean }>
-}> = ({ mobileControls }) => {
+  isVRMode?: boolean
+}> = ({ mobileControls, isVRMode = false }) => {
   const { camera, gl } = useThree()
+  const context = useContext(CameraSyncContext)
   const keys = useRef<{ [key: string]: boolean }>({})
   const velocity = useRef(new THREE.Vector3())
   const direction = new THREE.Vector3()
@@ -266,6 +275,11 @@ const FreeMovementControls: React.FC<{
       const quaternion = new THREE.Quaternion()
       quaternion.setFromEuler(new THREE.Euler(pitch.current, yaw.current, 0, 'YXZ'))
       camera.quaternion.copy(quaternion)
+      
+      // Update shared state in VR mode
+      if (isVRMode && context) {
+        context.updateSharedCamera(camera.position.clone(), camera.rotation.clone())
+      }
     }
 
     const onMouseDown = (e: MouseEvent) => {
@@ -317,7 +331,7 @@ const FreeMovementControls: React.FC<{
       window.removeEventListener('touchend', onTouchEnd)
       window.removeEventListener('touchmove', onTouchMove)
     }
-  }, [gl, camera])
+  }, [gl, camera, isVRMode, context])
 
   useFrame((_, delta) => {
     const speed = 8
@@ -352,6 +366,11 @@ const FreeMovementControls: React.FC<{
     nextPosition.y = THREE.MathUtils.clamp(nextPosition.y, heightMin, heightMax)
 
     camera.position.copy(nextPosition)
+    
+    // Update shared state in VR mode
+    if (isVRMode && context) {
+      context.updateSharedCamera(camera.position.clone(), camera.rotation.clone())
+    }
   })
 
   return null
@@ -428,13 +447,13 @@ const Gallery3D2: React.FC = () => {
   const [volume, setVolume] = useState(0.5)
   const [isLoadingScene, setIsLoadingScene] = useState(false)
   
-  // VR camera sync state
-  const [cameraPosition, setCameraPosition] = useState(new THREE.Vector3(0, 0, 25))
-  const [cameraRotation, setCameraRotation] = useState(new THREE.Euler(0, 0, 0))
+  // VR camera sync state - Updated to use shared state
+  const [sharedPosition, setSharedPosition] = useState(new THREE.Vector3(0, 0, 25))
+  const [sharedRotation, setSharedRotation] = useState(new THREE.Euler(0, 0, 0))
   
-  const updateCamera = (position: THREE.Vector3, rotation: THREE.Euler) => {
-    setCameraPosition(position)
-    setCameraRotation(rotation)
+  const updateSharedCamera = (position: THREE.Vector3, rotation: THREE.Euler) => {
+    setSharedPosition(position.clone())
+    setSharedRotation(rotation.clone())
   }
 
   useEffect(() => {
@@ -520,12 +539,12 @@ const Gallery3D2: React.FC = () => {
     setVolume(newVolume)
   }
 
-  const renderScene = (isLeftEye?: boolean) => (
+  const renderScene = (eyeId?: 'left' | 'right') => (
     <>
       <ambientLight intensity={1.2} color="#FFE8C2" />
       <pointLight position={[10, 10, 10]} intensity={0.5} />
-      <FreeMovementControls mobileControls={mobileControlsRef} />
-      {isVRMode && <CameraSync isLeftEye={isLeftEye || false} />}
+      <FreeMovementControls mobileControls={mobileControlsRef} isVRMode={isVRMode} />
+      {isVRMode && eyeId && <CameraSync eyeId={eyeId} />}
       <WallBackground />
       <PlantModel position={[-26, -15, -26]} />
       <PlantModel position={[26, -15, -26]} />
@@ -559,8 +578,8 @@ const Gallery3D2: React.FC = () => {
           )}
 
           {isVRMode ? (
-            // VR Mode with dual screens and camera sync
-            <CameraSyncContext.Provider value={{ cameraPosition, cameraRotation, updateCamera }}>
+            // VR Mode with dual screens and improved camera sync
+            <CameraSyncContext.Provider value={{ sharedPosition, sharedRotation, updateSharedCamera }}>
               <div className="flex w-full h-full">
                 {/* Left Eye */}
                 <div className="w-1/2 h-full border-r border-gray-600">
@@ -568,7 +587,7 @@ const Gallery3D2: React.FC = () => {
                     onCreated={() => setIsLoadingScene(false)} 
                     camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 0, 25] }}
                   >
-                    {renderScene(true)}
+                    {renderScene('left')}
                   </Canvas>
                 </div>
                 
@@ -577,7 +596,7 @@ const Gallery3D2: React.FC = () => {
                   <Canvas 
                     camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 0, 25] }}
                   >
-                    {renderScene(false)}
+                    {renderScene('right')}
                   </Canvas>
                 </div>
               </div>
@@ -595,7 +614,7 @@ const Gallery3D2: React.FC = () => {
           <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded-lg">
             <p className="text-sm">
               {isVRMode 
-                ? "VR Mode: Put on your VR headset for immersive experience"
+                ? "VR Mode: Both screens respond to drag - Put on your VR headset for immersive experience"
                 : isMobile
                 ? "Explore the lantern museum — use the controls below to move around"
                 : "Explore the lantern museum — click to look around and move using W A S D"
@@ -626,7 +645,7 @@ const Gallery3D2: React.FC = () => {
 
           {isVRMode && (
             <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-green-600 bg-opacity-90 text-white px-4 py-2 rounded-lg">
-              VR Mode Active
+              VR Mode Active - Both Eyes Synchronized
             </div>
           )}
 

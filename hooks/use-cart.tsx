@@ -8,6 +8,7 @@ interface CartItem {
   price: number
   image: string
   quantity: number
+  note?: string
 }
 
 interface CartContextType {

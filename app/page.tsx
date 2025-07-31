@@ -25,9 +25,10 @@ export default function HomePage() {
       <Gallery3D2 />
       <CulturalHeritage2 />
       <Gallery3D3 />
-      <FeaturedProducts />
+      
       <ChatbotFloating />
       <LanternDesigner />
+      <FeaturedProducts />
 
     </main>
   );

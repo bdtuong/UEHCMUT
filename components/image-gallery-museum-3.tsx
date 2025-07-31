@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useEffect, useMemo, useState } from 'react'
+import React, { useRef, useEffect, useMemo, useState, createContext, useContext } from 'react'
 import { Canvas, useThree, useLoader, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import { TextureLoader } from 'three'
@@ -26,8 +26,8 @@ const SAMPLE_IMAGES: ImageData[] = [
     id: '1',
     title: 'Northern Wall Center',
     artist: 'Artist A',
-    description: 'Center of back wall.',
-    imageUrl: '/mock-img.jpg',
+    description: 'This painting captures the poetic essence of Hoi An’s lantern festival, where tradition and craftsmanship converge under the golden glow of countless hand-crafted lanterns. Each detail tells a story of cultural resilience, passed down through generations of skilled artisans. Visitors are immersed in a gentle dance of light and shadow, evoking nostalgic memories of festive nights, communal laughter, and timeless beauty. Through this work, the artist not only preserves a fading tradition but also invites modern audiences to pause, reflect, and reconnect with the soulful artistry of Vietnam’s cultural heritage.',
+    imageUrl: '/room-2/1.jpg',
     position: [0, 0, -29.9],
     size: [24, 16],
   },
@@ -36,7 +36,7 @@ const SAMPLE_IMAGES: ImageData[] = [
     title: 'Western Wall Art 1',
     artist: 'Artist B',
     description: 'Left wall artwork.',
-    imageUrl: '/mock-img.jpg',
+    imageUrl: '/room-2/2.jpg',
     position: [-29.9, 0, -10],
     size: [16, 12],
   },
@@ -45,7 +45,7 @@ const SAMPLE_IMAGES: ImageData[] = [
     title: 'Western Wall Art 2',
     artist: 'Artist C',
     description: 'Left wall artwork.',
-    imageUrl: '/mock-img.jpg',
+    imageUrl: '/room-2/3.jpg',
     position: [-29.9, 0, 10],
     size: [16, 12],
   },
@@ -54,7 +54,7 @@ const SAMPLE_IMAGES: ImageData[] = [
     title: 'Eastern Wall Art 1',
     artist: 'Artist D',
     description: 'Right wall artwork.',
-    imageUrl: '/mock-img.jpg',
+    imageUrl: '/room-2/4.jpg',
     position: [29.9, 0, -10],
     size: [16, 12],
   },
@@ -63,7 +63,7 @@ const SAMPLE_IMAGES: ImageData[] = [
     title: 'Eastern Wall Art 2',
     artist: 'Artist E',
     description: 'Right wall artwork.',
-    imageUrl: '/mock-img.jpg',
+    imageUrl: '/room-2/5.jpg',
     position: [29.9, 0, 10],
     size: [16, 12],
   },
@@ -72,11 +72,43 @@ const SAMPLE_IMAGES: ImageData[] = [
     title: 'Southern Wall Center',
     artist: 'Artist F',
     description: 'Front wall center.',
-    imageUrl: '/mock-img.jpg',
+    imageUrl: '/room-2/6.png',
     position: [0, 0, 29.9],
     size: [24, 16],
   },
 ]
+
+// Camera sync context - Updated to handle shared state better
+const CameraSyncContext = createContext<{
+  sharedPosition: THREE.Vector3
+  sharedRotation: THREE.Euler
+  updateSharedCamera: (position: THREE.Vector3, rotation: THREE.Euler) => void
+} | null>(null)
+
+// Component to sync camera in VR mode - Fixed to allow both eyes to control
+const CameraSync = ({ eyeId }: { eyeId: 'left' | 'right' }) => {
+  const { camera, gl } = useThree()
+  const context = useContext(CameraSyncContext)
+  const lastUpdateTime = useRef<number>(0)
+  
+  useFrame(() => {
+    if (!context) return
+    
+    const now: number = Date.now()
+    
+    // Both eyes can update the shared state, but with a small delay to prevent conflicts
+    if (now - lastUpdateTime.current > 16) { // ~60fps throttling
+      context.updateSharedCamera(camera.position.clone(), camera.rotation.clone())
+      lastUpdateTime.current = now
+    }
+    
+    // Apply shared state to current camera
+    camera.position.copy(context.sharedPosition)
+    camera.rotation.copy(context.sharedRotation)
+  })
+  
+  return null
+}
 
 const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
   const { camera } = useThree()
@@ -99,7 +131,7 @@ const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
 
   useFrame(() => {
     const distance = camera.position.distanceTo(position)
-    setShowInfo(distance < 8)
+    setShowInfo(distance < 24)
   })
 
   return (
@@ -125,11 +157,11 @@ const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
         <meshStandardMaterial map={texture} side={THREE.DoubleSide} />
       </mesh>
       {showInfo && (
-        <Html distanceFactor={10} position={[0, height / 2 + 0.5, 0]} transform sprite>
-          <div className="bg-white/90 backdrop-blur text-black p-2 rounded-md shadow-lg max-w-2xl text-sm">
-            <p className="font-semibold">{imageData.title}</p>
-            <p className="italic text-gray-600">{imageData.artist}</p>
-            <p>{imageData.description}</p>
+        <Html distanceFactor={10} position={[0, -height / 2 - 2, 0]} transform>
+          <div className="bg-black/95 text-white p-6 rounded-xl border border-yellow-500/40 shadow-2xl text-base leading-loose space-y-4 inline-block w-fit max-w-5xl">
+            <p className="font-bold text-xl text-yellow-400">{imageData.title}</p>
+            <p className="italic text-white/70 text-lg">{imageData.artist}</p>
+            <p className="text-white whitespace-pre-line">{imageData.description}</p>
           </div>
         </Html>
       )}
@@ -197,10 +229,13 @@ const MobileControls: React.FC<{
   )
 }
 
+// Updated FreeMovementControls to work with VR context
 const FreeMovementControls: React.FC<{
   mobileControls: React.MutableRefObject<{ [key: string]: boolean }>
-}> = ({ mobileControls }) => {
+  isVRMode?: boolean
+}> = ({ mobileControls, isVRMode = false }) => {
   const { camera, gl } = useThree()
+  const context = useContext(CameraSyncContext)
   const keys = useRef<{ [key: string]: boolean }>({})
   const velocity = useRef(new THREE.Vector3())
   const direction = new THREE.Vector3()
@@ -240,6 +275,11 @@ const FreeMovementControls: React.FC<{
       const quaternion = new THREE.Quaternion()
       quaternion.setFromEuler(new THREE.Euler(pitch.current, yaw.current, 0, 'YXZ'))
       camera.quaternion.copy(quaternion)
+      
+      // Update shared state in VR mode
+      if (isVRMode && context) {
+        context.updateSharedCamera(camera.position.clone(), camera.rotation.clone())
+      }
     }
 
     const onMouseDown = (e: MouseEvent) => {
@@ -291,7 +331,7 @@ const FreeMovementControls: React.FC<{
       window.removeEventListener('touchend', onTouchEnd)
       window.removeEventListener('touchmove', onTouchMove)
     }
-  }, [gl, camera])
+  }, [gl, camera, isVRMode, context])
 
   useFrame((_, delta) => {
     const speed = 8
@@ -326,6 +366,11 @@ const FreeMovementControls: React.FC<{
     nextPosition.y = THREE.MathUtils.clamp(nextPosition.y, heightMin, heightMax)
 
     camera.position.copy(nextPosition)
+    
+    // Update shared state in VR mode
+    if (isVRMode && context) {
+      context.updateSharedCamera(camera.position.clone(), camera.rotation.clone())
+    }
   })
 
   return null
@@ -392,14 +437,24 @@ const WallBackground = () => {
   )
 }
 
-const Gallery3D3: React.FC = () => {
+const Gallery3D2: React.FC = () => {
   const mobileControlsRef = useRef<{ [key: string]: boolean }>({})
   const galleryRef = useRef<HTMLDivElement>(null!)
   const audioRef = useRef<HTMLAudioElement | null>(null)
   const [isMobile, setIsMobile] = useState(false)
   const [showGallery, setShowGallery] = useState(false)
+  const [isVRMode, setIsVRMode] = useState(false)
   const [volume, setVolume] = useState(0.5)
   const [isLoadingScene, setIsLoadingScene] = useState(false)
+  
+  // VR camera sync state - Updated to use shared state
+  const [sharedPosition, setSharedPosition] = useState(new THREE.Vector3(0, 0, 25))
+  const [sharedRotation, setSharedRotation] = useState(new THREE.Euler(0, 0, 0))
+  
+  const updateSharedCamera = (position: THREE.Vector3, rotation: THREE.Euler) => {
+    setSharedPosition(position.clone())
+    setSharedRotation(rotation.clone())
+  }
 
   useEffect(() => {
     audioRef.current = new Audio('/Lanterns-at-Dusk.mp3')
@@ -434,9 +489,10 @@ const Gallery3D3: React.FC = () => {
     mobileControlsRef.current[direction] = pressed
   }
 
-  const handleDiscoverClick = async () => {
+  const handleDiscoverClick = async (vrMode = false) => {
     setIsLoadingScene(true)
     setShowGallery(true)
+    setIsVRMode(vrMode)
 
     if (audioRef.current) {
       try {
@@ -463,6 +519,7 @@ const Gallery3D3: React.FC = () => {
 
   const handleBackClick = async () => {
     setShowGallery(false)
+    setIsVRMode(false)
 
     if (audioRef.current) {
       audioRef.current.pause()
@@ -482,6 +539,30 @@ const Gallery3D3: React.FC = () => {
     setVolume(newVolume)
   }
 
+  const renderScene = (eyeId?: 'left' | 'right') => (
+    <>
+      <ambientLight intensity={1.2} color="#FFE8C2" />
+      <pointLight position={[10, 10, 10]} intensity={0.5} />
+      <FreeMovementControls mobileControls={mobileControlsRef} isVRMode={isVRMode} />
+      {isVRMode && eyeId && <CameraSync eyeId={eyeId} />}
+      <WallBackground />
+      <PlantModel position={[-26, -15, -26]} />
+      <PlantModel position={[26, -15, -26]} />
+      <PlantModel position={[-26, -15, 26]} />
+      <PlantModel position={[26, -15, 26]} />
+      <BarrierModel position={[0, -15, -27.5]} />
+      <BarrierModel position={[-27.5, -15, -10]} rotation={[0, Math.PI / 2, 0]} />
+      <BarrierModel position={[-27.5, -15, 10]} rotation={[0, Math.PI / 2, 0]}/>
+      <BarrierModel position={[27.5, -15, -10]} rotation={[0, -Math.PI / 2, 0]}/>
+      <BarrierModel position={[27.5, -15, 10]} rotation={[0, -Math.PI / 2, 0]}/>
+      <BarrierModel position={[0, -15, 20.5]} />
+
+      {SAMPLE_IMAGES.map((imageData) => (
+        <ImageFrame key={imageData.id} imageData={imageData} />
+      ))}
+    </>
+  )
+
   return (
     <div
       id="gallery-wrapper"
@@ -496,33 +577,48 @@ const Gallery3D3: React.FC = () => {
             </div>
           )}
 
-          <Canvas onCreated={() => setIsLoadingScene(false)} camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 0, 25] }}>
-            <ambientLight intensity={1.2} color="#FFE8C2" />
-            <pointLight position={[10, 10, 10]} intensity={0.5} />
-            <FreeMovementControls
-              mobileControls={mobileControlsRef}
-            />
-            <WallBackground />
-            <PlantModel position={[-26, -15, -26]} />
-            <PlantModel position={[26, -15, -26]} />
-            <PlantModel position={[-26, -15, 26]} />
-            <PlantModel position={[26, -15, 26]} />
-            <BarrierModel position={[0, -15, -27.5]} />
-            <BarrierModel position={[-27.5, -15, -10]} rotation={[0, Math.PI / 2, 0]} />
-            <BarrierModel position={[-27.5, -15, 10]} rotation={[0, Math.PI / 2, 0]}/>
-            <BarrierModel position={[27.5, -15, -10]} rotation={[0, -Math.PI / 2, 0]}/>
-            <BarrierModel position={[27.5, -15, 10]} rotation={[0, -Math.PI / 2, 0]}/>
-            <BarrierModel position={[0, -15, 20.5]} />
-            {SAMPLE_IMAGES.map((imageData) => (
-              <ImageFrame key={imageData.id} imageData={imageData} />
-            ))}
-          </Canvas>
+          {isVRMode ? (
+            // VR Mode with dual screens and improved camera sync
+            <CameraSyncContext.Provider value={{ sharedPosition, sharedRotation, updateSharedCamera }}>
+              <div className="flex w-full h-full">
+                {/* Left Eye */}
+                <div className="w-1/2 h-full border-r border-gray-600">
+                  <Canvas 
+                    onCreated={() => setIsLoadingScene(false)} 
+                    camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 0, 25] }}
+                  >
+                    {renderScene('left')}
+                  </Canvas>
+                </div>
+                
+                {/* Right Eye */}
+                <div className="w-1/2 h-full">
+                  <Canvas 
+                    camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 0, 25] }}
+                  >
+                    {renderScene('right')}
+                  </Canvas>
+                </div>
+              </div>
+            </CameraSyncContext.Provider>
+          ) : (
+            // Normal Mode with single screen
+            <Canvas 
+              onCreated={() => setIsLoadingScene(false)} 
+              camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 0, 25] }}
+            >
+              {renderScene()}
+            </Canvas>
+          )}
 
           <div className="absolute top-4 left-4 bg-black bg-opacity-50 text-white p-3 rounded-lg">
             <p className="text-sm">
-              {isMobile
+              {isVRMode 
+                ? "VR Mode: Both screens respond to drag - Put on your VR headset for immersive experience"
+                : isMobile
                 ? "Explore the lantern museum — use the controls below to move around"
-                : "Explore the lantern museum — click to look around and move using W A S D"}
+                : "Explore the lantern museum — click to look around and move using W A S D"
+              }
             </p>
           </div>
 
@@ -546,6 +642,12 @@ const Gallery3D3: React.FC = () => {
               className="w-24 accent-amber-500"
             />
           </div>
+
+          {isVRMode && (
+            <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 bg-green-600 bg-opacity-90 text-white px-4 py-2 rounded-lg">
+              VR Mode Active - Both Eyes Synchronized
+            </div>
+          )}
 
           <MobileControls onMove={handleMobileMove} isMobile={isMobile} />
         </>
@@ -588,12 +690,27 @@ const Gallery3D3: React.FC = () => {
         Behind every glowing lantern is the quiet artistry of skilled Vietnamese craftsmen. Using humble materials like bamboo, rattan, and colored paper, they shape light into poetry — one careful cut, one delicate fold at a time.
       </p>
 
-      <button
-        onClick={handleDiscoverClick}
-        className="mt-4 group bg-green-400 hover:bg-green-300 text-black font-semibold py-4 px-10 rounded-full text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-green-400/25"
-      >
-        Meet the Makers
-      </button>
+      {/* Button container */}
+              <div className="flex flex-col sm:flex-row gap-4 mt-6">
+                <button
+                  onClick={() => handleDiscoverClick(false)}
+                  className="group bg-green-400 hover:bg-green-300 text-black font-semibold py-4 px-10 rounded-full text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-yellow-400/25"
+                >
+                  Meet the makers
+                </button>
+
+                <button
+                  onClick={() => handleDiscoverClick(true)}
+                  className="group bg-blue-600 hover:bg-blue-500 text-white font-semibold py-4 px-10 rounded-full text-lg transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:shadow-blue-600/25 border-2 border-blue-400"
+                >
+                  <span className="flex items-center gap-2">
+                    <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                      <path d="M2 6a2 2 0 012-2h5l2 2h5a2 2 0 012 2v6a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" />
+                    </svg>
+                    Turn into VR
+                  </span>
+                </button>
+              </div>
 
       <p className="text-white/40 text-sm mt-3">
         {isMobile ? "Tap to explore the artistry" : "Use W A S D to walk among the makers"}
@@ -633,12 +750,9 @@ const Gallery3D3: React.FC = () => {
     }
   `}</style>
 </div>
-
-
-
       )}
     </div>
   )
 }
 
-export default Gallery3D3
+export default Gallery3D2
