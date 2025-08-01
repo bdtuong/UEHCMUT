@@ -111,7 +111,7 @@ export default function Cart() {
                       {item.name}
                     </h3>
                     <p className="text-xl sm:text-2xl font-bold text-red-700 mb-4">
-                      ${item.price}
+                      {item.price} VND
                     </p>
                   </div>
 

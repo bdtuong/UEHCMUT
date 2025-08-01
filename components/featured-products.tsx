@@ -24,7 +24,7 @@ export default function FeaturedProducts() {
     {
   id: "1",
   name: "Red Moon Rabbit Lantern",
-  price: 42,
+  price: 15.000,
   image: "/rabbit.jpg",
   description:
     "A traditional handcrafted lantern in the shape of a rabbit, symbolizing innocence and the Mid-Autumn spirit. Made with colored cellophane and bamboo, this timeless piece brings back childhood memories under the harvest moon.",
@@ -33,7 +33,7 @@ export default function FeaturedProducts() {
     {
   id: "2",
   name: "Colorful Carp Lantern",
-  price: 38,
+  price: 10.000,
   image: "/carp.jpg",
   description:
     "Inspired by the legendary carp that leaps over the Dragon Gate, this vibrant lantern embodies courage, growth, and celebration. Crafted with cheerful hues and traditional patterns, it brings a joyful splash of Mid-Autumn spirit to children and collectors alike.",
@@ -42,7 +42,7 @@ export default function FeaturedProducts() {
     {
   id: "3",
   name: "Traditional Star Lantern",
-  price: 36,
+  price: 15.000,
   image: "/star.jpg",
   description:
     "A five-pointed star lantern handcrafted with vibrant cellophane and bamboo, glowing with childhood nostalgia. Symbolizing harmony and reunion, this iconic lantern lights up Mid-Autumn nights across Vietnam with joy and tradition.",
