@@ -105,7 +105,7 @@ export default function PuzzleReveal() {
     const interval = setInterval(() => {
       setElapsedTime((prev) => prev + 1);
 
-      if ((elapsedTime + 1) % 1 === 0 && revealedTiles.length < totalTiles) {
+      if ((elapsedTime + 1) % 200 === 0 && revealedTiles.length < totalTiles) {
         const randomTileIndex = getRandomTileIndex();
         
         if (randomTileIndex !== -1) {
