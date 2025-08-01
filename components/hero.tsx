@@ -28,23 +28,7 @@ export default function Hero() {
             Discover the timeless beauty of Vietnam through every glowing light ✨
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-start">
-            <Button
-              size="lg"
-              className="bg-red-600 hover:bg-red-700 text-white px-8 py-4 text-lg transition-all duration-300 transform hover:scale-105"
-            >
-              Explore More
-            </Button>
-            <Button
-              variant="outline"
-              size="lg"
-              onClick={() => setShowVideo(true)}
-              className="border-white text-white hover:bg-white hover:text-gray-900 px-8 py-4 text-lg transition-all duration-300 transform hover:scale-105"
-            >
-              <Play className="mr-2 h-5 w-5" />
-              Watch Video
-            </Button>
-          </div>
+          
         </div>
       </section>
 

@@ -12,6 +12,9 @@ import Gallery3D3 from "@/components/image-gallery-museum-3";
 import CulturalHeritage from "@/components/cultural-history-2";
 import CulturalHeritage2 from "@/components/cultural-heritage-3";
 import LanternDesigner from "@/components/lanterncustomizer";
+import PuzzleReveal from "@/components/PuzzleReveal";
+import LanternTourBooking from "@/components/lanterntourbooking";
+import LanternMakingGuide from "@/components/lanternmakingguide";
 
 export default function HomePage() {
   return (
@@ -22,13 +25,14 @@ export default function HomePage() {
       <CulturalHistory />
       <Gallery3D />
       <CulturalHeritage />
-      <Gallery3D2 />
-      <CulturalHeritage2 />
       <Gallery3D3 />
       
       <ChatbotFloating />
       <LanternDesigner />
       <FeaturedProducts />
+      <PuzzleReveal />
+      <LanternTourBooking />
+      <LanternMakingGuide />
 
     </main>
   );

@@ -1,12 +1,6 @@
 "use client"
 
-import { useState } from "react"
-import { Play } from "lucide-react"
-import VideoModal from "./video-modal"
-
 export default function VideoSection() {
-  const [showVideo, setShowVideo] = useState(false)
-
   const particles = Array.from({ length: 30 }, (_, i) => ({
     id: i,
     left: `${Math.random() * 80}%`,
@@ -70,32 +64,19 @@ export default function VideoSection() {
             </p>
           </div>
 
-          {/* Video preview */}
-          <div className="max-w-2xl mx-auto">
-            <div
-              className="relative aspect-video rounded-2xl overflow-hidden cursor-pointer group transition-all duration-500 hover:scale-[1.02] hover:shadow-[0_0_30px_rgba(255,255,255,0.2)]"
-              onClick={() => setShowVideo(true)}
-            >
-              <img
-                src="/placeholder.svg?height=720&width=1280"
-                alt="Vietnamese lantern market"
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute inset-0 bg-black/40 group-hover:bg-black/20 transition-all duration-300" />
-              <div className="absolute inset-0 flex items-center justify-center">
-                <div className="bg-white/90 text-black rounded-full p-6 transition-all duration-300 transform group-hover:bg-yellow-500 group-hover:text-white group-hover:scale-110">
-                  <Play className="h-12 w-12 ml-1" />
-                </div>
-              </div>
-            </div>
+          {/* 🔁 Embedded Looping Video */}
+          <div className="max-w-4xl mx-auto overflow-hidden rounded-2xl shadow-xl border border-yellow-500/20">
+            <video
+              src="/welcome-video.mp4"
+              autoPlay
+              muted
+              loop
+              playsInline
+              className="w-full h-full object-cover"
+            />
           </div>
         </div>
       </section>
-
-      {/* Video modal */}
-      <div className="z-50 relative">
-        <VideoModal isOpen={showVideo} onClose={() => setShowVideo(false)} />
-      </div>
     </>
   )
 }

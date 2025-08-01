@@ -20,126 +20,73 @@ interface ImageData {
   size: [number, number]
 }
 
-// Mảng chỉ chứa các tranh để trưng bày
+// Mảng chỉ chứa 6 tranh trên 4 mặt tường
 const SAMPLE_IMAGES: ImageData[] = [
   {
     id: '1',
-    title: 'Wall Center',
+    title: 'The Heart of the Harvest',
     artist: 'Artist A',
-    description: 'Center of back wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [0, 1.5, -49.9],
-    size: [5, 3],
+    description: 'Shaped like fruit or a blooming heart, this lantern reflects the warmth of family and the sweetness of reunion. In the glow of Mid-Autumn nights, children carry these vibrant forms through villages, reminding everyone of the ripeness of the harvest and the love that binds generations. It’s not just a light—it’s a symbol of home, togetherness, and gratitude.',
+    imageUrl: '/room-1/r1-1.jpg',
+    position: [0, 0, -29.9],
+    size: [24, 16],
   },
   {
     id: '2',
-    title: 'Left 1',
+    title: 'The Dragon of Lunar Legends',
     artist: 'Artist B',
-    description: 'Left wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [-49.9, 1.5, -20],
-    size: [4, 2.5],
+    description: 'This dragon-shaped lantern embodies strength, wisdom, and nobility in Vietnamese culture. Crafted with vibrant colors and flowing patterns, it recalls the mythical dragon’s dance through clouds and moonlight. Carried during the Mid-Autumn Festival, it invokes tales of ancient kings and celestial creatures, lighting the way for children to dream boldly and walk with courage.',
+    imageUrl: '/room-1/r1-5.jpg',
+    position: [-29.9, 0, -10],
+    size: [16, 12],
   },
   {
     id: '3',
-    title: 'Left 2',
+    title: 'The Butterfly of Joyful Transformation',
     artist: 'Artist C',
-    description: 'Left wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [-49.9, 1.5, 20],
-    size: [4, 2.5],
+    description: 'With its radiant wings and playful form, this butterfly-shaped lantern captures the spirit of innocence and change. In Vietnamese culture, the butterfly symbolizes beauty, freedom, and a child’s journey of discovery. During the Mid-Autumn Festival, its fluttering glow reminds children that like butterflies, they too are meant to grow, transform, and soar beyond boundaries.',
+    imageUrl: '/room-1/r1-6.jpg',
+    position: [-29.9, 0, 10],
+    size: [16, 12],
   },
   {
     id: '4',
-    title: 'Right 1',
+    title: 'The Carp of Aspiration',
     artist: 'Artist D',
-    description: 'Right wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [49.9, 1.5, -20],
-    size: [4, 2.5],
+    description: 'Shaped like a vibrant red carp, this lantern draws from the legend of the carp leaping over the Dragon Gate – a symbol of perseverance, learning, and transformation. During the Mid-Autumn Festival, children proudly carry carp lanterns, embodying the hope that with effort and determination, they too can overcome life’s challenges and reach greatness.',
+    imageUrl: '/room-1/r1-4.jpg',
+    position: [29.9, 0, -10],
+    size: [16, 12],
   },
   {
     id: '5',
-    title: 'Right 2',
+    title: 'The Moon Rabbit’s Blessing',
     artist: 'Artist E',
-    description: 'Right wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [49.9, 1.5, 20],
-    size: [4, 2.5],
+    description: 'Inspired by Vietnamese folklore, this lantern features the Moon Rabbit – a symbol of kindness and good fortune – surrounded by glowing star lanterns. During the Mid-Autumn Festival, children carry these lights to honor the Moon and celebrate family togetherness. The rabbit reminds us of the legends told under the harvest moon, where wishes whispered in candlelight may just reach the heavens.',
+    imageUrl: '/room-1/r1-12.jpg',
+    position: [29.9, 0, 10],
+    size: [16, 12],
   },
   {
     id: '6',
-    title: 'Front Center',
-    artist: 'Artist F',
-    description: 'Front wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [0, 1.5, 49.9],
-    size: [5, 3],
-  },
-  {
-    id: '7',
-    title: 'Center Short Back',
-    artist: 'Artist G',
-    description: 'Short back side of center wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [0, 0.8, -20.01],
-    size: [6, 3.5],
-  },
-  {
-    id: '8',
-    title: 'Center Short Front',
-    artist: 'Artist H',
-    description: 'Short front side of center wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [0, 0.8, 20.01],
-    size: [6, 3.5],
-  },
-  {
-    id: '9',
-    title: 'Center Long Left 1',
-    artist: 'Artist I',
-    description: 'Left side of center wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [-5.01, 1.5, -10],
-    size: [3, 2],
-  },
-  {
-    id: '10',
-    title: 'Center Long Left 2',
-    artist: 'Artist J',
-    description: 'Left side of center wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [-5.01, 1.5, 10],
-    size: [3, 2],
-  },
-  {
-    id: '11',
-    title: 'Center Long Right 1',
-    artist: 'Artist K',
-    description: 'Right side of center wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [5.01, 1.5, -10],
-    size: [3, 2],
-  },
-  {
-    id: '12',
-    title: 'Center Long Right 2',
-    artist: 'Artist L',
-    description: 'Right side of center wall.',
-    imageUrl: '/mock-img.jpg',
-    position: [5.01, 1.5, 10],
-    size: [3, 2],
+  title: 'The Star of Reunion',
+  artist: 'Artist F',
+  description: 'This star-shaped lantern symbolizes hope and unity during the Mid-Autumn Festival. Traditionally handcrafted with bamboo and colored paper, it lights up the night as children parade through villages, representing family reunion and the joy of childhood. The five points of the star echo the five blessings: longevity, wealth, health, virtue, and peace.',
+  imageUrl: '/room-1/r1-8.jpg',
+  position: [0, 0, 29.9],
+  size: [24, 16],
+
   },
 ]
 
-// Camera sync context for VR mode
+// Camera sync context - Updated to handle shared state better
 const CameraSyncContext = createContext<{
   sharedPosition: THREE.Vector3
   sharedRotation: THREE.Euler
   updateSharedCamera: (position: THREE.Vector3, rotation: THREE.Euler) => void
 } | null>(null)
 
-// Component to sync camera in VR mode
+// Component to sync camera in VR mode - Fixed to allow both eyes to control
 const CameraSync = ({ eyeId }: { eyeId: 'left' | 'right' }) => {
   const { camera, gl } = useThree()
   const context = useContext(CameraSyncContext)
@@ -177,18 +124,15 @@ const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
 
   const rotation = new THREE.Euler()
 
-  if (Math.abs(z) < 20 && x < 0) rotation.y = Math.PI / 2
-  else if (Math.abs(z) < 20 && x > 0) rotation.y = -Math.PI / 2
-  else if (Math.abs(x) < 2 && z < 0) rotation.y = Math.PI
-  else if (Math.abs(x) < 2 && z > 0) rotation.y = 0
-  else if (z > 39) rotation.y = Math.PI
-  else if (z < -39) rotation.y = 0
-  else if (x > 39) rotation.y = -Math.PI / 2
-  else if (x < -39) rotation.y = Math.PI / 2
+  // Tính toán rotation dựa trên vị trí trên tường
+  if (z < -25) rotation.y = 0        // Tường phía sau (North)
+  else if (z > 25) rotation.y = Math.PI  // Tường phía trước (South)
+  else if (x < -25) rotation.y = Math.PI / 2  // Tường trái (West)
+  else if (x > 25) rotation.y = -Math.PI / 2   // Tường phải (East)
 
   useFrame(() => {
     const distance = camera.position.distanceTo(position)
-    setShowInfo(distance < 6)
+    setShowInfo(distance < 24)
   })
 
   return (
@@ -214,13 +158,21 @@ const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
         <meshStandardMaterial map={texture} side={THREE.DoubleSide} />
       </mesh>
       {showInfo && (
-        <Html distanceFactor={10} position={[0, height / 2 + 0.5, 0]} transform sprite>
-          <div className="bg-white/90 backdrop-blur text-black p-2 rounded-md shadow-lg max-w-2xl text-sm">
-            <p className="font-semibold">{imageData.title}</p>
-            <p className="italic text-gray-600">{imageData.artist}</p>
-            <p>{imageData.description}</p>
-          </div>
-        </Html>
+        <Html distanceFactor={8} position={[0, -height / 2 - 2, 0]} transform>
+  <div className="bg-black/95 text-white px-10 py-8 rounded-2xl border border-yellow-400/50 shadow-2xl w-full max-w-5xl space-y-6 leading-relaxed text-xl text-left">
+    <p className="text-4xl font-extrabold text-red-400 tracking-tight leading-snug">
+      {imageData.title}
+    </p>
+    
+    <p className="text-4xl text-red-300 whitespace-pre-line leading-loose">
+      {imageData.description}
+    </p>
+  </div>
+</Html>
+
+
+
+
       )}
     </group>
   )
@@ -286,11 +238,11 @@ const MobileControls: React.FC<{
   )
 }
 
+// Updated FreeMovementControls to work with VR context
 const FreeMovementControls: React.FC<{
-  centerWallRef: React.RefObject<THREE.Mesh>
   mobileControls: React.MutableRefObject<{ [key: string]: boolean }>
   isVRMode?: boolean
-}> = ({ centerWallRef, mobileControls, isVRMode = false }) => {
+}> = ({ mobileControls, isVRMode = false }) => {
   const { camera, gl } = useThree()
   const context = useContext(CameraSyncContext)
   const keys = useRef<{ [key: string]: boolean }>({})
@@ -391,15 +343,15 @@ const FreeMovementControls: React.FC<{
   }, [gl, camera, isVRMode, context])
 
   useFrame((_, delta) => {
-    const speed = 5
+    const speed = 8
     direction.set(0, 0, 0)
 
     const activeKeys = { ...keys.current, ...mobileControls.current }
 
-    if (activeKeys['w']) direction.z -= 3
-    if (activeKeys['s']) direction.z += 3
-    if (activeKeys['a']) direction.x -= 3
-    if (activeKeys['d']) direction.x += 3
+    if (activeKeys['w']) direction.z -= 1
+    if (activeKeys['s']) direction.z += 1
+    if (activeKeys['a']) direction.x -= 1
+    if (activeKeys['d']) direction.x += 1
 
     direction.normalize()
 
@@ -413,20 +365,16 @@ const FreeMovementControls: React.FC<{
 
     const nextPosition = camera.position.clone().add(velocity.current)
 
-    const wall = centerWallRef.current
-    if (wall) {
-      wall.geometry.computeBoundingBox()
-      wall.updateMatrixWorld(true)
-      const box = wall.geometry.boundingBox!.clone().applyMatrix4(wall.matrixWorld)
-      const paddedBox = box.clone().expandByScalar(0.3)
-      if (paddedBox.containsPoint(nextPosition)) {
-        velocity.current.set(0, 0, 0)
-        return
-      }
-    }
+    // Giới hạn di chuyển trong phòng 60x60x30
+    const roomLimit = 28
+    const heightMin = -12
+    const heightMax = 12
+
+    nextPosition.x = THREE.MathUtils.clamp(nextPosition.x, -roomLimit, roomLimit)
+    nextPosition.z = THREE.MathUtils.clamp(nextPosition.z, -roomLimit, roomLimit)
+    nextPosition.y = THREE.MathUtils.clamp(nextPosition.y, heightMin, heightMax)
 
     camera.position.copy(nextPosition)
-    camera.position.y = THREE.MathUtils.clamp(camera.position.y, -4.5, 8)
     
     // Update shared state in VR mode
     if (isVRMode && context) {
@@ -438,15 +386,15 @@ const FreeMovementControls: React.FC<{
 }
 
 const WallBackground = () => {
-  const roomSize = 100
-  const roomHeight = 10
-  const floorTexture = useLoader(TextureLoader, '/floor-1.jpg')
+  const roomSize = 60
+  const roomHeight = 30
+  const floorTexture = useLoader(TextureLoader, '/dark-floor.jpg')
   floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping
-  floorTexture.repeat.set(8, 8)
+  floorTexture.repeat.set(6, 6)
 
-  const wallTexture = useLoader(TextureLoader, '/wall-4.jpg')
+  const wallTexture = useLoader(TextureLoader, '/dark-wall.jpg')
   wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping
-  wallTexture.repeat.set(roomSize / 10, roomHeight / 2.5)
+  wallTexture.repeat.set(roomSize / 10, roomHeight / 5)
 
   return (
     <>
@@ -474,20 +422,20 @@ const WallBackground = () => {
         <planeGeometry args={[roomSize, roomSize]} />
         <meshStandardMaterial map={floorTexture} side={THREE.DoubleSide} />
       </mesh>
-      {[-33, 0, 33].map((x) =>
-        [-33, 0, 33].map((z) => (
-          <group key={`${x}-${z}`} position={[x, roomHeight / 2 - 0.2, z]}>
+      {[-20, 0, 20].map((x) =>
+        [-20, 0, 20].map((z) => (
+          <group key={`${x}-${z}`} position={[x, roomHeight / 2 - 0.5, z]}>
             <mesh>
-              <sphereGeometry args={[0.3, 16, 16]} />
+              <sphereGeometry args={[0.4, 16, 16]} />
               <meshStandardMaterial
                 color="#ffffff"
                 emissive="#fff5e1"
-                emissiveIntensity={2.2}
+                emissiveIntensity={2.5}
               />
             </mesh>
             <pointLight
-              intensity={1.2}
-              distance={60}
+              intensity={1.5}
+              distance={80}
               color="#fff5e1"
               castShadow
             />
@@ -498,23 +446,7 @@ const WallBackground = () => {
   )
 }
 
-const CenterWall = React.forwardRef<THREE.Mesh>((_, ref) => {
-  const wallTexture = useLoader(TextureLoader, '/wall-2.jpg')
-
-  const width = 10
-  const height = 8
-  const length = 40
-
-  return (
-    <mesh ref={ref} position={[0, height / 2 - 5, 0]}>
-      <boxGeometry args={[width, height, length]} />
-      <meshStandardMaterial map={wallTexture} />
-    </mesh>
-  )
-})
-
 const Gallery3D: React.FC = () => {
-  const centerWallRef = useRef<THREE.Mesh>(null!)
   const mobileControlsRef = useRef<{ [key: string]: boolean }>({})
   const galleryRef = useRef<HTMLDivElement>(null!)
   const audioRef = useRef<HTMLAudioElement | null>(null)
@@ -524,8 +456,8 @@ const Gallery3D: React.FC = () => {
   const [volume, setVolume] = useState(0.5)
   const [isLoadingScene, setIsLoadingScene] = useState(false)
   
-  // VR camera sync state
-  const [sharedPosition, setSharedPosition] = useState(new THREE.Vector3(2, 1.5, 25))
+  // VR camera sync state - Updated to use shared state
+  const [sharedPosition, setSharedPosition] = useState(new THREE.Vector3(0, 0, 25))
   const [sharedRotation, setSharedRotation] = useState(new THREE.Euler(0, 0, 0))
   
   const updateSharedCamera = (position: THREE.Vector3, rotation: THREE.Euler) => {
@@ -620,20 +552,20 @@ const Gallery3D: React.FC = () => {
     <>
       <ambientLight intensity={1.2} color="#FFE8C2" />
       <pointLight position={[10, 10, 10]} intensity={0.5} />
-      <CenterWall ref={centerWallRef} />
-      <FreeMovementControls
-        centerWallRef={centerWallRef}
-        mobileControls={mobileControlsRef}
-        isVRMode={isVRMode}
-      />
+      <FreeMovementControls mobileControls={mobileControlsRef} isVRMode={isVRMode} />
       {isVRMode && eyeId && <CameraSync eyeId={eyeId} />}
       <WallBackground />
-      <PlantModel position={[-46, -5, -46]} />
-      <PlantModel position={[46, -5, -46]} />
-      <PlantModel position={[-46, -5, 46]} />
-      <PlantModel position={[46, -5, 46]} />
-      <BarrierModel position={[0, -5, 16]} />
-      <BarrierModel position={[0, -5, -27]} />
+      <PlantModel position={[-26, -15, -26]} />
+      <PlantModel position={[26, -15, -26]} />
+      <PlantModel position={[-26, -15, 26]} />
+      <PlantModel position={[26, -15, 26]} />
+      <BarrierModel position={[0, -15, -27.5]} />
+      <BarrierModel position={[-27.5, -15, -10]} rotation={[0, Math.PI / 2, 0]} />
+      <BarrierModel position={[-27.5, -15, 10]} rotation={[0, Math.PI / 2, 0]}/>
+      <BarrierModel position={[27.5, -15, -10]} rotation={[0, -Math.PI / 2, 0]}/>
+      <BarrierModel position={[27.5, -15, 10]} rotation={[0, -Math.PI / 2, 0]}/>
+      <BarrierModel position={[0, -15, 20.5]} />
+
       {SAMPLE_IMAGES.map((imageData) => (
         <ImageFrame key={imageData.id} imageData={imageData} />
       ))}
@@ -655,14 +587,14 @@ const Gallery3D: React.FC = () => {
           )}
 
           {isVRMode ? (
-            // VR Mode with dual screens and camera sync
+            // VR Mode with dual screens and improved camera sync
             <CameraSyncContext.Provider value={{ sharedPosition, sharedRotation, updateSharedCamera }}>
               <div className="flex w-full h-full">
                 {/* Left Eye */}
                 <div className="w-1/2 h-full border-r border-gray-600">
                   <Canvas 
                     onCreated={() => setIsLoadingScene(false)} 
-                    camera={{ fov: 75, near: 0.1, far: 1000, position: [2, 1.5, 25] }}
+                    camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 0, 25] }}
                   >
                     {renderScene('left')}
                   </Canvas>
@@ -671,7 +603,7 @@ const Gallery3D: React.FC = () => {
                 {/* Right Eye */}
                 <div className="w-1/2 h-full">
                   <Canvas 
-                    camera={{ fov: 75, near: 0.1, far: 1000, position: [2, 1.5, 25] }}
+                    camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 0, 25] }}
                   >
                     {renderScene('right')}
                   </Canvas>
@@ -682,7 +614,7 @@ const Gallery3D: React.FC = () => {
             // Normal Mode with single screen
             <Canvas 
               onCreated={() => setIsLoadingScene(false)} 
-              camera={{ fov: 75, near: 0.1, far: 1000, position: [2, 1.5, 25] }}
+              camera={{ fov: 75, near: 0.1, far: 1000, position: [0, 0, 25] }}
             >
               {renderScene()}
             </Canvas>

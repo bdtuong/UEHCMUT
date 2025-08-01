@@ -22,29 +22,32 @@ export default function FeaturedProducts() {
 
   const featuredProducts = [
     {
-      id: "1",
-      name: "Silk Moon Lantern",
-      price: 42,
-      image: "/placeholder.svg?height=400&width=400",
-      description:
-        "A graceful round lantern crafted with premium silk, radiating warm tradition.",
-    },
+  id: "1",
+  name: "Red Moon Rabbit Lantern",
+  price: 42,
+  image: "/rabbit.jpg",
+  description:
+    "A traditional handcrafted lantern in the shape of a rabbit, symbolizing innocence and the Mid-Autumn spirit. Made with colored cellophane and bamboo, this timeless piece brings back childhood memories under the harvest moon.",
+},
+
     {
-      id: "2",
-      name: "Heritage Hex Lantern",
-      price: 58,
-      image: "/placeholder.svg?height=400&width=400",
-      description:
-        "Hexagonal bamboo frame with hand-painted patterns, perfect for gifting.",
-    },
+  id: "2",
+  name: "Colorful Carp Lantern",
+  price: 38,
+  image: "/carp.jpg",
+  description:
+    "Inspired by the legendary carp that leaps over the Dragon Gate, this vibrant lantern embodies courage, growth, and celebration. Crafted with cheerful hues and traditional patterns, it brings a joyful splash of Mid-Autumn spirit to children and collectors alike.",
+}
+,
     {
-      id: "3",
-      name: "Artisan Cylinder Glow",
-      price: 49,
-      image: "/placeholder.svg?height=400&width=400",
-      description:
-        "Cylinder-shaped lantern blending craftsmanship and modern elegance.",
-    },
+  id: "3",
+  name: "Traditional Star Lantern",
+  price: 36,
+  image: "/star.jpg",
+  description:
+    "A five-pointed star lantern handcrafted with vibrant cellophane and bamboo, glowing with childhood nostalgia. Symbolizing harmony and reunion, this iconic lantern lights up Mid-Autumn nights across Vietnam with joy and tradition.",
+}
+
   ]
 
   return (
@@ -166,7 +169,7 @@ export default function FeaturedProducts() {
                 }
                 className="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-3 rounded-full font-semibold text-base transition-transform duration-300 hover:scale-105"
               >
-                Add to Cart – $70
+                Add to Cart – 50.000 VND
               </Button>
             </div>
           </div>

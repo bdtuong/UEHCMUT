@@ -24,55 +24,55 @@ interface ImageData {
 const SAMPLE_IMAGES: ImageData[] = [
   {
     id: '1',
-    title: 'Northern Wall Center',
+    title: 'In the Hands of the Lantern Maker',
     artist: 'Artist A',
-    description: 'This painting captures the poetic essence of Hoi An’s lantern festival, where tradition and craftsmanship converge under the golden glow of countless hand-crafted lanterns. Each detail tells a story of cultural resilience, passed down through generations of skilled artisans. Visitors are immersed in a gentle dance of light and shadow, evoking nostalgic memories of festive nights, communal laughter, and timeless beauty. Through this work, the artist not only preserves a fading tradition but also invites modern audiences to pause, reflect, and reconnect with the soulful artistry of Vietnam’s cultural heritage.',
-    imageUrl: '/room-2/1.jpg',
+    description: '"I’ve been crafting lanterns since I was a child, when the scent of cellophane and bamboo filled our little workshop. Each brushstroke I paint isn’t just a fish or a butterfly—it’s a memory, a piece of someone’s Mid-Autumn childhood. Every line holds my heartbeat, my wish to preserve this fading light in a fast-changing world. As long as children still walk under the moonlight carrying lanterns, I’ll still be here, painting red dreams into life..."',
+    imageUrl: '/room-2/r2-1.jpg',
     position: [0, 0, -29.9],
     size: [24, 16],
   },
   {
     id: '2',
-    title: 'Western Wall Art 1',
+    title: 'The Bamboo Frame of Memories',
     artist: 'Artist B',
-    description: 'Left wall artwork.',
-    imageUrl: '/room-2/2.jpg',
+    description: '"People often admire the glowing lanterns, but few know the patience it takes to bend bamboo just right. My hands have shaped hundreds—no, thousands—of frames like this over the years. Each strip of bamboo holds not just form, but a story. When I work, I think of the laughter of children, the rhythm of drums, and the glow of lanterns swaying under the autumn moon. That’s what keeps my fingers steady. That’s why I still do this.”',
+    imageUrl: '/room-2/r2-2.jpg',
     position: [-29.9, 0, -10],
     size: [16, 12],
   },
   {
     id: '3',
-    title: 'Western Wall Art 2',
+    title: 'A Lantern, A Labor of Love',
     artist: 'Artist C',
-    description: 'Left wall artwork.',
-    imageUrl: '/room-2/3.jpg',
+    description: '"From morning to dusk, I sit here shaping, gluing, and painting these red carp lanterns. It’s not glamorous work—but each one holds a bit of my care, my sweat, and my pride. Sometimes I imagine a child’s eyes lighting up when they receive it. That’s enough to keep me going. In every shimmering scale, in every brushstroke, I hope people still see the hands and hearts behind these lights."',
+    imageUrl: '/room-2/r2-3.jpg',
     position: [-29.9, 0, 10],
     size: [16, 12],
   },
   {
     id: '4',
-    title: 'Eastern Wall Art 1',
+    title: 'The Lantern House',
     artist: 'Artist D',
-    description: 'Right wall artwork.',
-    imageUrl: '/room-2/4.jpg',
+    description: '"This is our home—and our workshop. The front porch smells of bamboo and glue, and the back room echoes with stories passed down by grandma. For decades, our family has sat right here, shaping light from thin strips of rattan. People say it’s old-fashioned. But to us, it’s a legacy. We don’t just make lanterns—we keep memories glowing, year after year, Mid-Autumn after Mid-Autumn."',
+    imageUrl: '/room-2/r2-4.jpg',
     position: [29.9, 0, -10],
     size: [16, 12],
   },
   {
     id: '5',
-    title: 'Eastern Wall Art 2',
+    title: 'Coloring the Spirit of Tradition',
     artist: 'Artist E',
-    description: 'Right wall artwork.',
-    imageUrl: '/room-2/5.jpg',
+    description: '"It takes a steady hand and a patient heart to bring each lantern to life. Every color I choose, every stroke I paint—it all feels like a quiet conversation with the past. I didn’t grow up thinking I’d follow this path, but somehow, the rhythm of this work feels like home. These fish aren’t just decorations. They’re stories, hopes, and wishes—swimming into the hands of the next generation."',
+    imageUrl: '/room-2/r2-5.jpg',
     position: [29.9, 0, 10],
     size: [16, 12],
   },
   {
     id: '6',
-    title: 'Southern Wall Center',
+    title: 'Hands that Light the Moon',
     artist: 'Artist F',
-    description: 'Front wall center.',
-    imageUrl: '/room-2/6.png',
+    description: '"We don’t work alone. In this small room, generations sit side by side—father, daughter, brother, uncle—each playing their part. Some shape the frames, others paint the fins, and some just watch and smile. This is more than craft. It’s rhythm. It’s memory. It’s community. Together, we keep the Mid-Autumn spirit alive—one lantern, one story, one glowing fish at a time."',
+    imageUrl: '/room-2/r2-6.jpg',
     position: [0, 0, 29.9],
     size: [24, 16],
   },
@@ -160,7 +160,6 @@ const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
         <Html distanceFactor={10} position={[0, -height / 2 - 2, 0]} transform>
           <div className="bg-black/95 text-white p-6 rounded-xl border border-yellow-500/40 shadow-2xl text-base leading-loose space-y-4 inline-block w-fit max-w-5xl">
             <p className="font-bold text-xl text-yellow-400">{imageData.title}</p>
-            <p className="italic text-white/70 text-lg">{imageData.artist}</p>
             <p className="text-white whitespace-pre-line">{imageData.description}</p>
           </div>
         </Html>
@@ -383,7 +382,7 @@ const WallBackground = () => {
   floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping
   floorTexture.repeat.set(6, 6)
 
-  const wallTexture = useLoader(TextureLoader, '/wall-4.jpg')
+  const wallTexture = useLoader(TextureLoader, '/dark-wall-1.jpg')
   wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping
   wallTexture.repeat.set(roomSize / 10, roomHeight / 5)
 
@@ -672,7 +671,7 @@ const Gallery3D2: React.FC = () => {
   <div className="relative z-10 flex flex-col md:flex-row items-center justify-between w-full max-w-7xl gap-16">
     {/* Left side: Text content */}
     <div className="flex-1 space-y-6 text-left">
-      <p className="uppercase text-sm text-white/50 tracking-widest">Section 3</p>
+      <p className="uppercase text-sm text-white/50 tracking-widest">Section 2</p>
       <h2 className="text-2xl md:text-3xl font-medium text-white/80 italic">
         Honoring the hands behind <span className="text-green-400 font-semibold">Vietnamese lanterns</span> — where tradition lives in every fold.
       </h2>

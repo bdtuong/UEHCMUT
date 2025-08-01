@@ -157,13 +157,23 @@ const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
         <meshStandardMaterial map={texture} side={THREE.DoubleSide} />
       </mesh>
       {showInfo && (
-        <Html distanceFactor={10} position={[0, -height / 2 - 2, 0]} transform>
-          <div className="bg-black/95 text-white p-6 rounded-xl border border-yellow-500/40 shadow-2xl text-base leading-loose space-y-4 inline-block w-fit max-w-5xl">
-            <p className="font-bold text-xl text-yellow-400">{imageData.title}</p>
-            <p className="italic text-white/70 text-lg">{imageData.artist}</p>
-            <p className="text-white whitespace-pre-line">{imageData.description}</p>
-          </div>
-        </Html>
+        <Html distanceFactor={8} position={[0, -height / 2 - 2, 0]} transform>
+  <div className="bg-black/95 text-white px-10 py-8 rounded-2xl border border-yellow-400/50 shadow-2xl w-full max-w-5xl space-y-6 leading-relaxed text-xl text-left">
+    <p className="text-4xl font-extrabold text-red-400 tracking-tight leading-snug">
+      {imageData.title}
+    </p>
+    <p className="text-2xl italic text-yellow-100/90 font-medium leading-snug">
+      {imageData.artist}
+    </p>
+    <p className="text-4xl text-red-300 whitespace-pre-line leading-loose">
+      {imageData.description}
+    </p>
+  </div>
+</Html>
+
+
+
+
       )}
     </group>
   )
@@ -383,7 +393,7 @@ const WallBackground = () => {
   floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping
   floorTexture.repeat.set(6, 6)
 
-  const wallTexture = useLoader(TextureLoader, '/wall-4.jpg')
+  const wallTexture = useLoader(TextureLoader, '/dark-wall-1.jpg')
   wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping
   wallTexture.repeat.set(roomSize / 10, roomHeight / 5)
 
