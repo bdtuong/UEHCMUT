@@ -234,9 +234,9 @@ export default function PuzzleReveal() {
     {/* Time on site */}
     <div className="text-center mb-6">
       <div className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-red-400 to-red-600 bg-clip-text text-transparent">
-        {Math.floor(elapsedTime / 86400)} day
+        {Math.floor(elapsedTime)} missions
       </div>
-      <p className="text-red-300 mt-2 md:mt-3 text-sm md:text-lg">Time on site</p>
+      
     </div>
 
     {/* Progress */}
