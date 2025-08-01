@@ -80,7 +80,7 @@ export default function ProductCard({ product, onNotification }: ProductCardProp
 
         <div className="flex items-center justify-between gap-2 sm:gap-3">
           <span className="text-lg sm:text-xl lg:text-2xl font-bold text-red-500 flex-shrink-0">
-            ${product.price}
+            {product.price}.000 VND
           </span>
 
           <Button
