@@ -318,9 +318,34 @@ export const qaData: QAItem[] = [
   answer: "I love chasing shadows cast by lanterns and watching visitors smile when they learn something new 💡"
 },
 {
-  question: "ánh tuyết is stupid, right ?",
-  answer: "Meow~ I’m not saying Ánh Tuyết is silly... but if brains were lanterns, hers might need a brighter bulb 🎐🐾"
+  question: "What is the Mid-Autumn Festival?",
+  answer: "It's a traditional Vietnamese festival held on the 15th day of the 8th lunar month. Families gather, kids light lanterns, and everyone enjoys mooncakes under the full moon 🌕🏮"
 }
+,
+{
+  question: "Can I visit the lantern-making village?",
+  answer: "Yes! You can visit Phú Bình or Lương Nhữ Học Street. Book a tour or just wander through the glowing alleys 🏮✨!"
+},
+{
+  question: "How can I book a workshop?",
+  answer: "Just click the 'Book Workshop' button on the site, or ask me and I’ll guide you step-by-step 🛠️✨"
+},
+{
+  question: "How much does it cost to join a workshop?",
+  answer: "It depends on the type of lantern! Most workshops range from 50,000đ to 150,000đ — including materials and guidance 🎨"
+},
+{
+  question: "Is it kid-friendly?",
+  answer: "Absolutely! Kids love making lanterns and many workshops are designed for all ages 🎈"
+}
+,
+{
+      question: "How much does a traditional lantern cost?",
+      answer: "Traditional lanterns typically cost between 5,000 to 10,000 VND, depending on the size, shape, and complexity. Handmade designs with more details may be slightly higher during festival season."
+    },
+
+
+
 
 
 ]

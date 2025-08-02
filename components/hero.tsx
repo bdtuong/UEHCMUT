@@ -13,7 +13,7 @@ export default function Hero() {
       <section
         className="relative bg-cover bg-center text-white min-h-screen flex items-center justify-start px-10 md:px-20 py-28"
         style={{
-          backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0,0,0,1) 10%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0) 95%), url('/images/hero-1.png')`,
+          backgroundImage: `linear-gradient(to right, rgba(0, 0, 0, 1) 0%, rgba(0,0,0,1) 10%, rgba(0,0,0,0.6) 70%, rgba(0,0,0,0) 95%), url('/room-1/r1-2.jpg')`,
 
         }}
       >

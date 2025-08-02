@@ -25,15 +25,15 @@ export default function ProductGrid() {
   }
 
   const allProducts = [
-    { id: "1", name: "Classic Round Lantern", price: 45, image: "/placeholder.svg?height=400&width=400", description: "Traditional round silk lantern in vibrant red", category: "Traditional Lanterns" },
-    { id: "2", name: "Hexagonal Festival Lantern", price: 65, image: "/placeholder.svg?height=400&width=400", description: "Elegant hexagonal design perfect for celebrations", category: "Festival Lanterns" },
-    { id: "3", name: "Bamboo Cylinder Lantern", price: 55, image: "/placeholder.svg?height=400&width=400", description: "Natural bamboo construction with warm glow", category: "Traditional Lanterns" },
-    { id: "4", name: "Lotus Petal Lantern", price: 75, image: "/placeholder.svg?height=400&width=400", description: "Delicate lotus-inspired design in soft pink", category: "Decorative Lanterns" },
-    { id: "5", name: "Dragon Scale Lantern", price: 85, image: "/placeholder.svg?height=400&width=400", description: "Ornate dragon scale pattern in emerald and gold", category: "Festival Lanterns" },
-    { id: "6", name: "Mini Boat Lantern Set", price: 120, image: "/placeholder.svg?height=400&width=400", description: "Set of 3 miniature boat-shaped lanterns", category: "Decorative Lanterns" },
-    { id: "7", name: "Palace Lantern", price: 150, image: "/placeholder.svg?height=400&width=400", description: "Grand palace-style lantern with imperial motifs", category: "Traditional Lanterns" },
-    { id: "8", name: "Star Festival Lantern", price: 60, image: "/placeholder.svg?height=400&width=400", description: "Star-shaped design with celestial patterns", category: "Festival Lanterns" },
-    { id: "9", name: "Butterfly Garden Lantern", price: 70, image: "/placeholder.svg?height=400&width=400", description: "Beautiful butterfly motifs in vibrant colors", category: "Decorative Lanterns" },
+    { id: "1", name: "Rabbit Lantern", price: 15, image: "/rabbitlantern.jpg?height=400&width=400", description: "Traditional round silk lantern in vibrant red", category: "Traditional Lanterns" },
+    { id: "2", name: "Vietnam paper Lantern", price: 12, image: "/vietnam.jpg?height=400&width=400", description: "Elegant hexagonal design perfect for celebrations", category: "Festival Lanterns" },
+    { id: "3", name: "Elephant Lantern", price: 10, image: "/elephant.jpg?height=400&width=400", description: "Natural bamboo construction with warm glow", category: "Traditional Lanterns" },
+    { id: "4", name: "Carp Lantern", price: 7, image: "/Carplantern.jpg?height=400&width=400", description: "Delicate lotus-inspired design in soft pink", category: "Decorative Lanterns" },
+    { id: "5", name: "Chicken Scale Lantern", price: 8, image: "/chicken.jpg?height=400&width=400", description: "Ornate dragon scale pattern in emerald and gold", category: "Festival Lanterns" },
+    { id: "6", name: "Mini Boat Lantern Set", price: 12, image: "/boat.jpg?height=400&width=400", description: "Set of 3 miniature boat-shaped lanterns", category: "Decorative Lanterns" },
+    { id: "7", name: "Palace Lantern", price: 15, image: "/palace.jpg?height=400&width=400", description: "Grand palace-style lantern with imperial motifs", category: "Traditional Lanterns" },
+    { id: "8", name: "Star Festival Lantern", price: 6, image: "/starlantern.jpg?height=400&width=400", description: "Star-shaped design with celestial patterns", category: "Festival Lanterns" },
+    { id: "9", name: "Butterfly Lantern", price: 7, image: "/butterfly.jpg?height=400&width=400", description: "Beautiful butterfly motifs in vibrant colors", category: "Decorative Lanterns" },
   ]
 
   const loadProducts = async (category: string) => {

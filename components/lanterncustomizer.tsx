@@ -358,78 +358,76 @@ export default function ModernLanternDesigner() {
 
   if (!started) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-black to-gray-900 text-white flex flex-col items-center justify-center p-6">
-        <div className="text-center max-w-4xl">
-          <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-red-500 to-red-600 bg-clip-text text-transparent">
-            Modern Lantern Designer
-          </h1>
-          <p className="text-xl text-gray-300 mb-8 leading-relaxed">
-            Create stunning traditional lanterns with a modern digital twist. Design, customize, and bring your vision to life.
-          </p>
-          
-          <div className="mb-10 relative">
-            <div className="relative w-80 h-80 mx-auto rounded-full flex items-center justify-center border-4 border-red-600 overflow-hidden shadow-inner">
-            {/* Hình ảnh trong vòng tròn */}
-            <img
-              src="/lanterndesign.jpg" // <-- thay bằng ảnh thật của bạn
-              alt="Lantern Preview"
-              className="w-full h-full object-cover rounded-full z-10"
-            />
+      <div className="min-h-screen bg-black text-white flex flex-col items-center justify-center p-6">
+  <div className="text-center max-w-4xl">
+    <h1 className="text-6xl font-bold mb-6 bg-gradient-to-r from-yellow-400 to-yellow-500 bg-clip-text text-transparent">
+      Modern Lantern Designer
+    </h1>
+    <p className="text-xl text-yellow-200 mb-8 leading-relaxed">
+      Create stunning traditional lanterns with a modern digital twist. Design, customize, and bring your vision to life.
+    </p>
 
-            {/* Vòng tròn đỏ xoay bên ngoài */}
-            <div className="absolute inset-0 rounded-full border-4 border-transparent z-0 animate-spin-slow">
-              <div className="absolute inset-0 rounded-full border-4 border-red-500 opacity-50 blur-md" />
-            </div>
+    <div className="mb-10 relative">
+      <div className="relative w-80 h-80 mx-auto rounded-full flex items-center justify-center border-4 border-yellow-500 overflow-hidden shadow-inner">
+        <img
+          src="/lanterndesign.jpg"
+          alt="Lantern Preview"
+          className="w-full h-full object-cover rounded-full z-10"
+        />
 
-            {/* Style animation riêng */}
-            <style jsx>{`
-              .animate-spin-slow {
-                animation: spin 6s linear infinite;
-              }
-
-              @keyframes spin {
-                0% {
-                  transform: rotate(0deg);
-                }
-                100% {
-                  transform: rotate(360deg);
-                }
-              }
-            `}</style>
-          </div>
-
-
-            <div className="absolute inset-0 bg-gradient-to-r from-red-500/10 to-transparent rounded-full blur-3xl"></div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 text-left">
-            <div className="bg-gray-800/50 p-6 rounded-lg border border-red-500/20 backdrop-blur-sm">
-              <div className="text-red-500 mb-3">🎨</div>
-              <h3 className="font-semibold text-red-400 mb-2">Design Tools</h3>
-              <p className="text-gray-400 text-sm">Advanced drawing tools with curve control and real-time editing</p>
-            </div>
-            <div className="bg-gray-800/50 p-6 rounded-lg border border-red-500/20 backdrop-blur-sm">
-              <div className="text-red-500 mb-3">✨</div>
-              <h3 className="font-semibold text-red-400 mb-2">Custom Elements</h3>
-              <p className="text-gray-400 text-sm">Add decorative stickers with scaling and rotation controls</p>
-            </div>
-            <div className="bg-gray-800/50 p-6 rounded-lg border border-red-500/20 backdrop-blur-sm">
-              <div className="text-red-500 mb-3">💾</div>
-              <h3 className="font-semibold text-red-400 mb-2">Export Ready</h3>
-              <p className="text-gray-400 text-sm">Download your creations in high-quality PNG format</p>
-            </div>
-          </div>
-
-          <button
-            onClick={handleStartDesign}
-            className="bg-gradient-to-r from-red-500 to-red-600 text-white px-8 py-4 rounded-full text-xl font-semibold hover:from-red-600 hover:to-red-700 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-red-500/25"
-          >
-            Start Creating
-          </button>
-          
-          <p className="text-sm text-gray-500 mt-4">Click to enter fullscreen design mode</p>
+        <div className="absolute inset-0 rounded-full border-4 border-transparent z-0 animate-spin-slow">
+          <div className="absolute inset-0 rounded-full border-4 border-yellow-400 opacity-50 blur-md" />
         </div>
+
+        <style jsx>{`
+          .animate-spin-slow {
+            animation: spin 6s linear infinite;
+          }
+
+          @keyframes spin {
+            0% {
+              transform: rotate(0deg);
+            }
+            100% {
+              transform: rotate(360deg);
+            }
+          }
+        `}</style>
       </div>
+
+      <div className="absolute inset-0 bg-yellow-500/10 rounded-full blur-3xl"></div>
+    </div>
+
+    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10 text-left">
+      <div className="bg-gray-800/50 p-6 rounded-lg border border-yellow-500/20 backdrop-blur-sm">
+        <div className="text-yellow-400 mb-3">🎨</div>
+        <h3 className="font-semibold text-yellow-300 mb-2">Design Tools</h3>
+        <p className="text-yellow-200 text-sm">Advanced drawing tools with curve control and real-time editing</p>
+      </div>
+      <div className="bg-gray-800/50 p-6 rounded-lg border border-yellow-500/20 backdrop-blur-sm">
+        <div className="text-yellow-400 mb-3">✨</div>
+        <h3 className="font-semibold text-yellow-300 mb-2">Custom Elements</h3>
+        <p className="text-yellow-200 text-sm">Add decorative stickers with scaling and rotation controls</p>
+      </div>
+      <div className="bg-gray-800/50 p-6 rounded-lg border border-yellow-500/20 backdrop-blur-sm">
+        <div className="text-yellow-400 mb-3">💾</div>
+        <h3 className="font-semibold text-yellow-300 mb-2">Export Ready</h3>
+        <p className="text-yellow-200 text-sm">Download your creations in high-quality PNG format</p>
+      </div>
+    </div>
+
+    <button
+      onClick={handleStartDesign}
+      className="bg-gradient-to-r from-yellow-500 to-yellow-600 text-black px-8 py-4 rounded-full text-xl font-semibold hover:from-yellow-600 hover:to-yellow-700 transition-all duration-300 transform hover:scale-105 shadow-lg shadow-yellow-400/25"
+    >
+      Start Creating
+    </button>
+
+    <p className="text-sm text-yellow-500 mt-4">Click to enter fullscreen design mode</p>
+  </div>
+</div>
+
+
     );
   }
 

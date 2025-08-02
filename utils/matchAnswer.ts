@@ -1,7 +1,9 @@
 import { qaData } from './qaData'
 
+// Stopwords giữ lại WH-words (what, how, why...)
 const STOP_WORDS = new Set([
-  'what', 'is', 'the', 'a', 'an', 'do', 'you', 'i', 'can', 'are', 'how', 'to', 'of', 'and', 'in', 'on', 'for'
+  'is', 'the', 'a', 'an', 'do', 'you', 'i', 'can', 'are',
+  'to', 'of', 'and', 'in', 'on', 'for', 'with', 'be', 'have', 'has'
 ])
 
 function tokenize(text: string): string[] {
@@ -9,39 +11,51 @@ function tokenize(text: string): string[] {
     .toLowerCase()
     .replace(/[^\w\s]/g, '') // remove punctuation
     .split(/\s+/)
-    .filter(word => word && !STOP_WORDS.has(word)) // remove stop words
+    .filter(word => word && !STOP_WORDS.has(word))
 }
 
-/**
- * Find the best answer based on keyword scoring with stopword filtering.
- * @param userQuestion - The user's question
- * @returns the best matched answer or null
- */
-export function findBestAnswer(userQuestion: string): string | null {
-  const cleanedUserQuestion = userQuestion.trim().toLowerCase()
+function countSequentialMatches(a: string[], b: string[]): number {
+  let count = 0
+  for (let i = 0; i < a.length - 1; i++) {
+    if (b.includes(a[i]) && b.includes(a[i + 1])) {
+      count++
+    }
+  }
+  return count
+}
 
-  // Check for exact match
+export function findBestAnswer(userQuestion: string): string | null {
+  const cleaned = userQuestion.trim().toLowerCase()
+
+  // Step 1: Exact match
   for (const item of qaData) {
-    if (item.question.toLowerCase() === cleanedUserQuestion) {
+    if (item.question.trim().toLowerCase() === cleaned) {
       return item.answer
     }
   }
 
-  const userWords = tokenize(cleanedUserQuestion)
+  const userTokens = tokenize(cleaned)
+  if (userTokens.length === 0) return null
 
   let bestMatch = null
   let bestScore = 0
 
   for (const item of qaData) {
-    const questionWords = tokenize(item.question)
-    const commonWords = questionWords.filter(word => userWords.includes(word))
-    const score = commonWords.length
+    const qaTokens = tokenize(item.question)
+    const commonWords = qaTokens.filter(word => userTokens.includes(word))
+    const matchRatio = commonWords.length / Math.max(userTokens.length, qaTokens.length)
 
-    if (score > bestScore) {
-      bestScore = score
+    const sequenceBonus = countSequentialMatches(userTokens, qaTokens) * 0.05
+
+    const totalScore = matchRatio + sequenceBonus
+
+    if (totalScore > bestScore) {
+      bestScore = totalScore
       bestMatch = item.answer
     }
   }
 
-  return bestScore > 0 ? bestMatch : null
+  // Step 3: Threshold to avoid false match
+  const MIN_SCORE_THRESHOLD = 0.25
+  return bestScore >= MIN_SCORE_THRESHOLD ? bestMatch : null
 }

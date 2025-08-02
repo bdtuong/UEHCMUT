@@ -116,19 +116,17 @@ const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
   const texture = useLoader(TextureLoader, imageData.imageUrl)
   const [width, height] = imageData.size
   const frameThickness = 0.05
-  const frameColor = '#D4AF37'
+  const frameColor = '#FFD700' // Bright glowing gold
   const [showInfo, setShowInfo] = useState(false)
 
   const [x, y, z] = imageData.position
   const position = new THREE.Vector3(x, y, z)
 
   const rotation = new THREE.Euler()
-
-  // Tính toán rotation dựa trên vị trí trên tường
-  if (z < -25) rotation.y = 0        // Tường phía sau (North)
-  else if (z > 25) rotation.y = Math.PI  // Tường phía trước (South)
-  else if (x < -25) rotation.y = Math.PI / 2  // Tường trái (West)
-  else if (x > 25) rotation.y = -Math.PI / 2   // Tường phải (East)
+  if (z < -25) rotation.y = 0
+  else if (z > 25) rotation.y = Math.PI
+  else if (x < -25) rotation.y = Math.PI / 2
+  else if (x > 25) rotation.y = -Math.PI / 2
 
   useFrame(() => {
     const distance = camera.position.distanceTo(position)
@@ -137,42 +135,68 @@ const ImageFrame: React.FC<{ imageData: ImageData }> = ({ imageData }) => {
 
   return (
     <group position={imageData.position} rotation={rotation}>
+      {/* Top Frame */}
       <mesh position={[0, height / 2 + frameThickness / 2, -0.01]}>
         <boxGeometry args={[width + 2 * frameThickness, frameThickness, 0.02]} />
-        <meshStandardMaterial color={frameColor} />
+        <meshStandardMaterial
+          color={frameColor}
+          emissive={frameColor}
+          emissiveIntensity={1.5}
+          toneMapped={false}
+        />
       </mesh>
+
+      {/* Bottom Frame */}
       <mesh position={[0, -height / 2 - frameThickness / 2, -0.01]}>
         <boxGeometry args={[width + 2 * frameThickness, frameThickness, 0.02]} />
-        <meshStandardMaterial color={frameColor} />
+        <meshStandardMaterial
+          color={frameColor}
+          emissive={frameColor}
+          emissiveIntensity={1.5}
+          toneMapped={false}
+        />
       </mesh>
+
+      {/* Left Frame */}
       <mesh position={[-width / 2 - frameThickness / 2, 0, -0.01]}>
         <boxGeometry args={[frameThickness, height, 0.02]} />
-        <meshStandardMaterial color={frameColor} />
+        <meshStandardMaterial
+          color={frameColor}
+          emissive={frameColor}
+          emissiveIntensity={1.5}
+          toneMapped={false}
+        />
       </mesh>
+
+      {/* Right Frame */}
       <mesh position={[width / 2 + frameThickness / 2, 0, -0.01]}>
         <boxGeometry args={[frameThickness, height, 0.02]} />
-        <meshStandardMaterial color={frameColor} />
+        <meshStandardMaterial
+          color={frameColor}
+          emissive={frameColor}
+          emissiveIntensity={1.5}
+          toneMapped={false}
+        />
       </mesh>
+
+      {/* Main Image */}
       <mesh>
         <planeGeometry args={imageData.size} />
         <meshStandardMaterial map={texture} side={THREE.DoubleSide} />
       </mesh>
+
+      {/* Info Tooltip */}
       {showInfo && (
         <Html distanceFactor={8} position={[0, -height / 2 - 2, 0]} transform>
-  <div className="bg-black/95 text-white px-10 py-8 rounded-2xl border border-yellow-400/50 shadow-2xl w-full max-w-5xl space-y-6 leading-relaxed text-xl text-left">
-    <p className="text-4xl font-extrabold text-red-400 tracking-tight leading-snug">
-      {imageData.title}
-    </p>
-    
-    <p className="text-4xl text-red-300 whitespace-pre-line leading-loose">
-      {imageData.description}
-    </p>
-  </div>
-</Html>
-
-
-
-
+          <div className="bg-black/95 text-white px-10 py-8 rounded-2xl border border-yellow-400/50 shadow-2xl w-full max-w-5xl space-y-6 leading-relaxed text-xl text-left">
+            <p className="text-4xl font-extrabold text-red-600 tracking-tight leading-snug">
+              {imageData.title}
+            </p>
+            <p className="text-4xl text-white whitespace-pre-line leading-loose">
+              {imageData.description}
+            </p>
+          </div>
+        </Html>
       )}
     </group>
   )
@@ -388,11 +412,11 @@ const FreeMovementControls: React.FC<{
 const WallBackground = () => {
   const roomSize = 60
   const roomHeight = 30
-  const floorTexture = useLoader(TextureLoader, '/dark-floor.jpg')
+  const floorTexture = useLoader(TextureLoader, '/fabric-floor.jpg')
   floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping
   floorTexture.repeat.set(6, 6)
 
-  const wallTexture = useLoader(TextureLoader, '/dark-wall.jpg')
+  const wallTexture = useLoader(TextureLoader, '/wall-6.jpg')
   wallTexture.wrapS = wallTexture.wrapT = THREE.RepeatWrapping
   wallTexture.repeat.set(roomSize / 10, roomHeight / 5)
 

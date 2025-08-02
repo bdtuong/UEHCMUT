@@ -39,9 +39,33 @@ export default function LanternMakingGuide() {
   const [currentStep, setCurrentStep] = useState(0)
   const step = steps[currentStep]
 
+  const redParticles = Array.from({ length: 30 }).map((_, i) => ({
+    id: i,
+    left: `${Math.random() * 100}%`,
+    delay: `${Math.random() * 5}s`,
+    duration: `${4 + Math.random() * 3}s`,
+  }))
+
   return (
-    <section className="bg-black text-red-200 py-20 px-6 md:px-12 lg:px-24 border-t border-red-600/30">
-      <div className="text-center mb-10">
+    <section className="relative bg-black text-red-200 py-20 px-6 md:px-12 lg:px-24 border-t border-red-600/30 overflow-hidden">
+      {/* 🔴 Red Falling Particles */}
+      <div className="absolute inset-0 pointer-events-none z-0 overflow-hidden">
+        {redParticles.map((p) => (
+          <div
+            key={p.id}
+            className="absolute w-2 h-2 bg-red-500 rounded-full opacity-80 animate-fall"
+            style={{
+              left: p.left,
+              top: '-10px',
+              animationDelay: p.delay,
+              animationDuration: p.duration,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Title */}
+      <div className="text-center mb-10 relative z-10">
         <h2 className="text-3xl md:text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-red-400 to-red-600">
           How to Make a Traditional Lantern
         </h2>
@@ -50,21 +74,20 @@ export default function LanternMakingGuide() {
         </p>
       </div>
 
-      {/* Instructional Video */}
-<div className="max-w-3xl mx-auto mb-10">
-  <video
-    src="/diy.mp4"
-    autoPlay
-    loop
-    muted
-    playsInline
-    className="w-full rounded-2xl border border-red-500/20 shadow-2xl"
-  />
-</div>
+      {/* Video */}
+      <div className="max-w-3xl mx-auto mb-10 relative z-10">
+        <video
+          src="/diy.mp4"
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full rounded-2xl border border-red-500/20 shadow-2xl"
+        />
+      </div>
 
-
-      {/* Step Content */}
-      <div className="max-w-2xl mx-auto text-center">
+      {/* Step */}
+      <div className="max-w-2xl mx-auto text-center relative z-10">
         <img
           src={step.image}
           alt={step.title}
@@ -99,6 +122,29 @@ export default function LanternMakingGuide() {
           </button>
         </div>
       </div>
+
+      {/* 🔴 Falling Animation CSS */}
+      <style jsx>{`
+        @keyframes fall {
+          0% {
+            transform: translateY(0) scale(1);
+            opacity: 0.8;
+          }
+          60% {
+            opacity: 1;
+          }
+          100% {
+            transform: translateY(100vh) scale(0.7);
+            opacity: 0;
+          }
+        }
+
+        .animate-fall {
+          animation-name: fall;
+          animation-timing-function: ease-in;
+          animation-iteration-count: infinite;
+        }
+      `}</style>
     </section>
   )
 }

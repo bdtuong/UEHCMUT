@@ -88,10 +88,10 @@ export default function WelcomeSection() {
           viewport={{ once: true }}
           className="group relative flex items-center justify-center gap-6"
         >
-          <img src="/welcome-section/wc-lantern-1.jpg" alt="Lantern 1" className={imageClass} />
+          <img src="/w1.jpg" alt="Lantern 1" className={imageClass} />
           <div className="flex flex-col gap-6">
-            <img src="/welcome-section/wc-lantern-2.jpg" alt="Lantern 2" className={imageClass} />
-            <img src="/welcome-section/wc-lantern-3.jpg" alt="Lantern 3" className={imageClass} />
+            <img src="/w2.jpg" alt="Lantern 2" className={imageClass} />
+            <img src="/w3.jpg" alt="Lantern 3" className={imageClass} />
           </div>
         </motion.div>
       </div>
