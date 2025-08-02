@@ -113,68 +113,7 @@ export default function FeaturedProducts() {
         `}</style>
       </section>
 
-      <section className="relative py-20 bg-neutral-950 text-white overflow-hidden border-t border-neutral-800">
-        <div className="container mx-auto px-6 relative z-10">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl md:text-5xl font-bold text-yellow-400 mb-4 font-serif">
-              Order Your Custom-Designed Lantern
-            </h2>
-            <p className="text-lg text-white/70 max-w-2xl mx-auto">
-              Upload your custom design and leave a message for our amazing artisans!
-            </p>
-          </div>
-
-          <div className="flex flex-col md:flex-row gap-8 items-center justify-center mb-12">
-            <div className="w-[300px] h-[300px] bg-white/5 border border-yellow-500/20 rounded-2xl backdrop-blur-sm flex items-center justify-center">
-              {customImage ? (
-                <img src={customImage} alt="Uploaded Design" className="object-contain w-full h-full rounded-xl" />
-              ) : (
-                <span className="text-yellow-500 text-6xl">🏮</span>
-              )}
-            </div>
-
-            <div className="max-w-md space-y-4 w-full">
-              <label className="block cursor-pointer">
-                <span className="text-sm text-white/70">Upload your design (JPG, PNG):</span>
-                <input
-                  type="file"
-                  accept="image/*"
-                  onChange={handleImageUpload}
-                  className="mt-1 block w-full text-sm text-white bg-white/10 border border-yellow-500/20 rounded-md p-2 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-yellow-500 file:text-black hover:file:bg-yellow-400 cursor-pointer"
-                  title="Upload"
-                />
-              </label>
-
-              <label className="block">
-                <span className="text-sm text-white/70">Message to the artisan (optional):</span>
-                <textarea
-                  value={customDescription}
-                  onChange={(e) => setCustomDescription(e.target.value)}
-                  rows={4}
-                  className="mt-1 w-full p-3 rounded-md bg-white/10 border border-yellow-500/20 text-white placeholder:text-white/50 text-sm"
-                  placeholder="Share your idea, meaning, or inspiration behind this design..."
-                />
-              </label>
-
-              <Button
-                onClick={() =>
-                  addToCart({
-                    id: "custom-lantern",
-                    name: "Custom Designed Lantern",
-                    price: 70,
-                    image: customImage || "/lantern-custom.png",
-                    quantity: 1,
-                    note: customDescription,
-                  })
-                }
-                className="bg-yellow-500 hover:bg-yellow-400 text-black px-6 py-3 rounded-full font-semibold text-base transition-transform duration-300 hover:scale-105"
-              >
-                Add to Cart – 50.000 VND
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+      
     </>
   )
 }

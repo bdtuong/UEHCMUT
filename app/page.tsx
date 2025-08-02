@@ -28,7 +28,6 @@ export default function HomePage() {
       <Gallery3D3 />
       
       <ChatbotFloating />
-      <LanternDesigner />
       <FeaturedProducts />
       <PuzzleReveal />
       <LanternTourBooking />
