@@ -1,115 +1,87 @@
-'use client'
-
-import { useState, useEffect, useRef } from 'react'
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { useCart } from '@/hooks/use-cart'
-import { Menu, ShoppingCart, X } from 'lucide-react'
-import clsx from 'clsx'
-
+"use client";
+import { useState } from "react";
+import Link from "next/link";
+import { Menu, ShoppingBag, X } from "lucide-react";
+import { useCart } from "@/hooks/use-cart";
+const links = [
+  { label: "Museums", href: "/#collections" },
+  { label: "Our purpose", href: "/#about" },
+  { label: "Souvenirs", href: "/products" },
+  { label: "Workshops", href: "/#workshops" },
+];
 export default function Navbar() {
-  const [isOpen, setIsOpen] = useState(false)
-  const { items } = useCart()
-  const itemCount = items.length
-
-  const [showNav, setShowNav] = useState(true)
-  const lastScrollY = useRef(0)
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const currentY = window.scrollY
-      setShowNav(currentY < lastScrollY.current || currentY < 10)
-      lastScrollY.current = currentY
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [])
-
+  const [open, setOpen] = useState(false);
+  const { items } = useCart();
+  const count = items.reduce((n, item) => n + item.quantity, 0);
   return (
-    <nav
-      className={clsx(
-        'fixed top-0 left-0 w-full z-50 transition-transform duration-500',
-        showNav ? 'translate-y-0' : '-translate-y-full'
-      )}
-    >
-      <div className="bg-gradient-to-b from-black/95 via-black/80 to-transparent backdrop-blur-md shadow-[0_4px_20px_-4px_rgba(255,215,0,0.1)]">
-        <div className="container mx-auto px-6">
-          <div className="flex items-center justify-between h-24">
-            {/* Logo */}
-            <Link href="/" className="flex items-center space-x-8">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-white/20">
-                <img
-                  src="/logo.png"
-                  alt="LanternVerse Logo"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <span className="text-xl font-semibold text-white tracking-wide font-serif">
-                LanternVerse
-              </span>
+    <header className="sticky top-0 z-40 border-b border-[#ded9cb] bg-[#f7f3e9]/95 backdrop-blur-md">
+      <nav
+        className="culture-shell flex h-20 items-center justify-between"
+        aria-label="Main navigation"
+      >
+        <Link href="/" className="flex items-center gap-3">
+          <img
+            src="/logo.png"
+            alt="UEHCMUT logo"
+            width={48}
+            height={48}
+            className="h-12 w-12 shrink-0 rounded-full bg-white object-contain"
+          />
+          <span className="font-serif text-xl tracking-tight">
+            Viet Culture
+            <span className="block font-sans text-[9px] uppercase tracking-[.26em] text-[#697062]">
+              The digital museum
+            </span>
+          </span>
+        </Link>
+        <div className="hidden items-center gap-8 text-sm md:flex">
+          {links.map((l) => (
+            <Link
+              className="transition-colors hover:text-[#a95e40]"
+              key={l.label}
+              href={l.href}
+            >
+              {l.label}
             </Link>
-
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              {['Home', 'Products', 'About', 'Contact'].map((label) => (
-                <Link
-                  key={label}
-                  href={`/${label.toLowerCase() === 'home' ? '' : label.toLowerCase()}`}
-                  className="text-gray-300 hover:text-yellow-300 relative transition-colors duration-200 after:content-[''] after:block after:h-0.5 after:bg-yellow-300 after:scale-x-0 hover:after:scale-x-100 after:transition-transform after:duration-300 after:origin-left"
-                >
-                  {label}
-                </Link>
-              ))}
-              <Link href="/cart" className="relative">
-                <Button variant="ghost" size="sm" className="relative text-white hover:text-black">
-                  <ShoppingCart className="h-5 w-5" />
-                  {itemCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-red-700 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {itemCount}
-                    </span>
-                  )}
-                </Button>
-              </Link>
-            </div>
-
-            {/* Mobile menu button */}
-            <div className="md:hidden flex items-center space-x-4">
-              <Link href="/cart" className="relative">
-                <Button variant="ghost" size="sm" className="relative text-white hover:text-yellow-400">
-                  <ShoppingCart className="h-5 w-5" />
-                  {itemCount > 0 && (
-                    <span className="absolute -top-2 -right-2 bg-yellow-500 text-black text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                      {itemCount}
-                    </span>
-                  )}
-                </Button>
-              </Link>
-              <Button variant="ghost" size="sm" onClick={() => setIsOpen(!isOpen)} className="text-white">
-                {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-              </Button>
-            </div>
-          </div>
-
-          {/* Mobile Navigation */}
-          {isOpen && (
-            <div className="md:hidden py-4 border-t border-gray-700">
-              <div className="flex flex-col space-y-4">
-                {['Home', 'Products', 'About', 'Contact'].map((label) => (
-                  <Link
-                    key={label}
-                    href={`/${label.toLowerCase() === 'home' ? '' : label.toLowerCase()}`}
-                    className="text-gray-300 hover:text-yellow-300 transition-colors"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {label}
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
+          ))}
         </div>
-      </div>
-    </nav>
-  )
+        <div className="flex items-center gap-4">
+          <Link
+            href="/cart"
+            aria-label={`Shopping bag, ${count} items`}
+            className="relative p-2"
+          >
+            <ShoppingBag size={21} />
+            {count > 0 && (
+              <span className="absolute -right-1 -top-1 rounded-full bg-[#a95e40] px-1.5 text-xs text-white">
+                {count}
+              </span>
+            )}
+          </Link>
+          <button
+            type="button"
+            className="p-2 md:hidden"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            aria-controls="mobile-navigation"
+            onClick={() => setOpen(!open)}
+          >
+            {open ? <X /> : <Menu />}
+          </button>
+        </div>
+      </nav>
+      {open && (
+        <div
+          id="mobile-navigation"
+          className="culture-shell flex flex-col gap-5 border-t border-[#ded9cb] py-6 md:hidden"
+        >
+          {links.map((l) => (
+            <Link key={l.label} href={l.href} onClick={() => setOpen(false)}>
+              {l.label}
+            </Link>
+          ))}
+        </div>
+      )}
+    </header>
+  );
 }

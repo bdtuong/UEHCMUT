@@ -1,114 +1,71 @@
-"use client"
-
-import Link from "next/link"
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { useCart } from "@/hooks/use-cart"
-import { ShoppingCart, Loader2 } from "lucide-react"
-
+"use client";
+import Link from "next/link";
+import PhotoCredit from "./photo-credit";
+import { useState } from "react";
+import { Plus, Check } from "lucide-react";
+import { useCart } from "@/hooks/use-cart";
+import { formatPrice } from "@/lib/culture";
 interface Product {
-  id: string
-  name: string
-  price: number
-  image: string
-  description: string
+  id: string;
+  name: string;
+  price: number;
+  image: string;
+  description: string;
+  category?: string;
 }
-
-interface ProductCardProps {
-  product: Product
-  onNotification?: (message: string, type: 'success' | 'error') => void
-}
-
-export default function ProductCard({ product, onNotification }: ProductCardProps) {
-  const { addToCart } = useCart()
-  const [isAddingToCart, setIsAddingToCart] = useState(false)
-
-  const handleAddToCart = async () => {
-    if (isAddingToCart) return
-
-    setIsAddingToCart(true)
-    try {
-      await new Promise(resolve => setTimeout(resolve, 800))
-
-      addToCart({
-        id: product.id,
-        name: product.name,
-        price: product.price,
-        image: product.image,
-        quantity: 1,
-      })
-
-      onNotification?.(`${product.name} has been added to your cart!`, 'success')
-    } catch (error) {
-      onNotification?.('Failed to add item to cart. Please try again.', 'error')
-    } finally {
-      setIsAddingToCart(false)
-    }
-  }
-
+export default function ProductCard({
+  product,
+  onNotification,
+}: {
+  product: Product;
+  onNotification?: (message: string, type: "success" | "error") => void;
+}) {
+  const { addToCart } = useCart();
+  const [added, setAdded] = useState(false);
   return (
-    <div className="group bg-neutral-900 rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 transform hover:scale-[1.02] overflow-hidden max-w-sm mx-auto border border-neutral-800">
-      <Link href={`/products/${product.id}`}>
-        <div className="relative overflow-hidden aspect-square">
-          <img
-            src={product.image || "/placeholder.svg"}
-            alt={product.name}
-            className="w-full h-full object-cover group-hover:brightness-110 transition-all duration-300"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300" />
-
-          {/* Mobile overlay */}
-          <div className="sm:hidden absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/70 to-transparent p-4">
-            <h3 className="text-white font-semibold text-sm line-clamp-1">
-              {product.name}
-            </h3>
-            <p className="text-yellow-400 text-xs mt-1">${product.price}</p>
-          </div>
-        </div>
+    <article className="group flex h-full flex-col overflow-hidden border border-[#dad6c9] bg-[#faf7ef]">
+      <Link href={`/products/${product.id}`} className="overflow-hidden">
+        <img
+          src={product.image}
+          alt={product.name}
+          className={`aspect-[4/3] w-full bg-[#e7dfcf] ${product.image.includes("folk-art") ? "object-contain" : "object-cover"} transition-transform duration-500 group-hover:scale-105`}
+        />
       </Link>
-
-      <div className="p-4 sm:p-6">
+      <div className="flex flex-1 flex-col p-5">
+        <PhotoCredit src={product.image} className="mb-3" />
+        <p className="eyebrow text-[10px]">
+          {product.category || "Museum souvenir"}
+        </p>
         <Link href={`/products/${product.id}`}>
-          <h3 className="text-base sm:text-lg lg:text-xl font-semibold text-white mb-2 group-hover:text-yellow-400 transition-colors duration-200 line-clamp-2">
+          <h3 className="mt-3 font-serif text-2xl text-[#263e33]">
             {product.name}
           </h3>
         </Link>
-
-        <p className="text-gray-400 mb-4 text-xs sm:text-sm leading-relaxed line-clamp-2 sm:line-clamp-3">
+        <p className="mb-5 mt-3 flex-1 text-sm leading-6 text-[#62685f]">
           {product.description}
         </p>
-
-        <div className="flex items-center justify-between gap-2 sm:gap-3">
-          <span className="text-lg sm:text-xl lg:text-2xl font-bold text-red-500 flex-shrink-0">
-            {product.price}.000 VND
+        <div className="flex items-center justify-between gap-3 border-t border-[#ded9cb] pt-4">
+          <span className="text-base font-medium">
+            {formatPrice(product.price)}
           </span>
-
-          <Button
-            onClick={handleAddToCart}
-            disabled={isAddingToCart}
-            className="
-              bg-yellow-500 hover:bg-yellow-400 text-black 
-              transition-all duration-300 transform hover:scale-105
-              disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none
-              text-xs sm:text-sm lg:text-base px-2 py-1.5 sm:px-3 sm:py-2 lg:px-4 lg:py-2
-              flex items-center gap-1 sm:gap-2 min-w-0 flex-shrink-0
-            "
+          <button
+            type="button"
+            aria-label={`Add ${product.name} to bag`}
+            className="inline-flex items-center gap-2 rounded-full border border-[#b8c1af] px-4 py-2 text-sm hover:bg-[#e8ecdf]"
+            onClick={() => {
+              addToCart({ ...product, quantity: 1 });
+              setAdded(true);
+              onNotification?.(`${product.name} added to bag`, "success");
+            }}
           >
-            {isAddingToCart ? (
-              <>
-                <Loader2 className="h-3 w-3 sm:h-4 sm:w-4 animate-spin" />
-                <span className="hidden sm:inline">Adding...</span>
-              </>
-            ) : (
-              <>
-                <ShoppingCart className="h-3 w-3 sm:h-4 sm:w-4" />
-                <span className="hidden sm:inline">Add to Cart</span>
-                <span className="sm:hidden">Add</span>
-              </>
-            )}
-          </Button>
+            {added ? <Check size={15} /> : <Plus size={15} />}{" "}
+            {added ? "Add again" : "Add to bag"}
+          </button>
         </div>
+        <span role="status" className="sr-only">
+          {added ? `${product.name} added to bag` : ""}
+        </span>
       </div>
-    </div>
-  )
+    </article>
+  );
 }

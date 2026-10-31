@@ -1,76 +1,57 @@
-import Link from "next/link"
-import { Facebook, Instagram, Twitter, Youtube } from "lucide-react"
-
+import Link from "next/link";
+import { ArrowUpRight } from "lucide-react";
 export default function Footer() {
   return (
-    <footer className="bg-neutral-950 text-white/90 border-t border-white/10">
-      <div className="container mx-auto px-6 py-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
-          {/* Brand */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <div className="w-10 h-10 rounded-full overflow-hidden bg-white/20">
-                <img
-                  src="/logo.png"
-                  alt="LanternVerse Logo"
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <span className="text-xl font-semibold text-white tracking-wide font-serif">
-                LanternVerse
-              </span>
+    <footer className="bg-[#233e35] py-14 text-[#f3eddf]">
+      <div className="culture-shell">
+        <div className="grid gap-10 md:grid-cols-[2fr_1fr_1fr]">
+          <div>
+            <div className="flex items-center gap-3 font-serif text-2xl">
+              <img
+                src="/logo.png"
+                alt="UEHCMUT logo"
+                width={56}
+                height={56}
+                className="h-14 w-14 shrink-0 rounded-full bg-white object-contain"
+              />
+              Viet Culture
             </div>
-            <p className="text-white/60 leading-relaxed text-sm">
-              Bringing the timeless beauty of Vietnamese heritage to your home through authentic, handcrafted lanterns.
+            <p className="mt-5 max-w-sm text-sm leading-7 text-[#c5cdbf]">
+              A space for cultural discovery, shared knowledge and the people
+              who keep traditions moving forward.
             </p>
-            <div className="flex space-x-4 pt-2">
-              <Facebook className="h-5 w-5 text-yellow-500 hover:text-yellow-400 cursor-pointer transition-colors" />
-              <Instagram className="h-5 w-5 text-yellow-500 hover:text-yellow-400 cursor-pointer transition-colors" />
-              <Twitter className="h-5 w-5 text-yellow-500 hover:text-yellow-400 cursor-pointer transition-colors" />
-              <Youtube className="h-5 w-5 text-yellow-500 hover:text-yellow-400 cursor-pointer transition-colors" />
+          </div>
+          <div>
+            <p className="eyebrow text-[#b7c3ad]">Keep exploring</p>
+            <div className="mt-5 flex flex-col gap-3 text-sm">
+              <Link href="/#collections">3D museums</Link>
+              <Link href="/products">Souvenir shop</Link>
+              <Link href="/#workshops">Workshops</Link>
+              <Link href="/image-credits">Image credits</Link>
             </div>
           </div>
-
-          {/* Quick Links */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">Quick Links</h3>
-            <div className="space-y-2 text-sm">
-              <Link href="/" className="block text-white/60 hover:text-yellow-400 transition-colors">Home</Link>
-              <Link href="/products" className="block text-white/60 hover:text-yellow-400 transition-colors">Products</Link>
-              <Link href="/about" className="block text-white/60 hover:text-yellow-400 transition-colors">About Us</Link>
-              <Link href="/contact" className="block text-white/60 hover:text-yellow-400 transition-colors">Contact</Link>
-            </div>
-          </div>
-
-          {/* Customer Service */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">Customer Service</h3>
-            <div className="space-y-2 text-sm">
-              <Link href="/shipping" className="block text-white/60 hover:text-yellow-400 transition-colors">Shipping Info</Link>
-              <Link href="/returns" className="block text-white/60 hover:text-yellow-400 transition-colors">Returns</Link>
-              <Link href="/faq" className="block text-white/60 hover:text-yellow-400 transition-colors">FAQ</Link>
-              <Link href="/support" className="block text-white/60 hover:text-yellow-400 transition-colors">Support</Link>
-            </div>
-          </div>
-
-          {/* Contact Info */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-semibold text-white">Contact Info</h3>
-            <div className="space-y-2 text-sm text-white/60">
-              <p>Uehcmut</p>
-              <p>HCM City, Vietnam</p>
-              <p>Phone: +84 235 123 4567</p>
-              <p>Email: uehcmut@123.com</p>
-            </div>
+          <div>
+            <p className="eyebrow text-[#b7c3ad]">For cultural organizations</p>
+            <p className="mt-5 text-sm leading-7 text-[#c5cdbf]">
+              Built for museums, cultural centres and organizations preserving
+              <span className="culture-keyword culture-keyword-light">
+                Vietnamese
+              </span>{" "}
+              heritage.
+            </p>
+            <Link
+              href="/#about"
+              className="mt-4 inline-flex items-center gap-2 text-sm"
+            >
+              Our purpose <ArrowUpRight size={15} />
+            </Link>
           </div>
         </div>
-
-        <div className="border-t border-white/10 mt-12 pt-8 text-center text-sm text-white/50">
-          <p>
-            &copy; 2024 UEHCMUT LanternVerse. All rights reserved. Preserving Vietnamese heritage through authentic craftsmanship.
-          </p>
+        <div className="mt-12 flex flex-wrap justify-between gap-3 border-t border-white/15 pt-6 text-xs text-[#bdc7b7]">
+          <p>© {new Date().getFullYear()} Viet Culture · UEHCMUT project</p>
+          <p>Discover. Understand. Take part.</p>
         </div>
       </div>
     </footer>
-  )
+  );
 }
