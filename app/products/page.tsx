@@ -1,17 +1,18 @@
-import ProductGrid from "@/components/product-grid"
-
+import ProductGrid from "@/components/product-grid";
 export default function ProductsPage() {
   return (
-    <main className="min-h-screen bg-stone-50 pt-[4rem]">
-      <div className="container mx-auto px-6 py-12">
-        <div className="text-center mb-12">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4 font-serif">Lanterns Shop</h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
-            Handcrafted by skilled artisans, each lantern carries the soul of Vietnamese heritage
-          </p>
-        </div>
+    <main className="min-h-screen bg-[#f7f3e9] py-14">
+      <div className="culture-shell">
+        <p className="eyebrow">The museum shop</p>
+        <h1 className="mt-4 font-serif text-4xl md:text-6xl">
+          Culture to carry with you.
+        </h1>
+        <p className="mb-10 mt-5 max-w-xl leading-7 text-[#62685f]">
+          Discover art prints, illustrated keepsakes and festival crafts from
+          across the collections. Preview catalogue with illustrative prices.
+        </p>
         <ProductGrid />
       </div>
     </main>
-  )
+  );
 }

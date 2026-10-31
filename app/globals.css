@@ -88,3 +88,103 @@ html {
 .shadow-3xl {
   box-shadow: 0 35px 60px -12px rgba(0, 0, 0, 0.25);
 }
+
+/* Shared museum identity */
+body {
+  background: #f7f3e9;
+  color: #263e33;
+}
+.culture-shell {
+  width: min(1200px, calc(100% - 48px));
+  margin-inline: auto;
+}
+.culture-hero {
+  background: #f7f3e9;
+}
+.hero-art {
+  aspect-ratio: 1 / 1.03;
+  overflow: hidden;
+  border-radius: 48% 48% 0 0;
+  border: 1px solid #c8c3b2;
+}
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+.culture-button,
+.culture-button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 13px 20px;
+  font-size: 13px;
+  font-weight: 500;
+  transition: background 0.2s;
+}
+.culture-button {
+  background: #28483c;
+  color: #faf7ef;
+  border: 1px solid #28483c;
+}
+.culture-button:hover {
+  background: #3d6050;
+}
+.culture-button-secondary {
+  color: #28483c;
+  border: 1px solid #b8bdac;
+  background: transparent;
+}
+.culture-button-secondary:hover {
+  background: #e6eadc;
+}
+.culture-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  padding-block: 10px;
+}
+.culture-link:hover {
+  color: #a95e40;
+}
+.culture-input {
+  display: block;
+  width: 100%;
+  border: 1px solid #c8c9b9;
+  background: #faf7ef;
+  color: #263e33;
+  padding: 12px 14px;
+  font-size: 14px;
+}
+:focus-visible {
+  outline: 2px solid #a95e40;
+  outline-offset: 4px;
+}
+@media (max-width: 640px) {
+  .culture-shell {
+    width: calc(100% - 32px);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Warm accents preserve contrast on the museum's light and dark surfaces. */
+.culture-keyword {
+  color: #a34c2e;
+  font-weight: 600;
+}
+.culture-keyword-light {
+  color: #edc785;
+}
