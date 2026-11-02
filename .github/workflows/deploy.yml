@@ -65,7 +65,7 @@ jobs:
             "$SSH_USER@$SSH_HOST" 'bash -se' <<'REMOTE'
           set -euo pipefail
 
-          cd /srv/vietculture
+          cd /srv/vietculture/frontend
 
           git fetch origin main
           git merge --ff-only origin/main
