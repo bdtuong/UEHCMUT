@@ -68,7 +68,7 @@ jobs:
 
           export NVM_DIR="$HOME/.nvm"
           source "$NVM_DIR/nvm.sh"
-          nvm use 22
+          nvm use --delete-prefix v22.23.2 --silent
 
           cd /srv/vietculture/frontend
 
