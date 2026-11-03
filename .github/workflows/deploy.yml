@@ -66,9 +66,11 @@ jobs:
             "$SSH_USER@$SSH_HOST" 'bash -se' <<'REMOTE'
           set -euo pipefail
 
-          export NVM_DIR="$HOME/.nvm"
-          source "$NVM_DIR/nvm.sh"
-          nvm use --delete-prefix v22.23.2 --silent
+          export PATH="$HOME/.nvm/versions/node/v22.23.2/bin:$PATH"
+
+          echo "Node: $(node -v)"
+          echo "npm: $(npm -v)"
+          echo "PM2: $(command -v pm2)"
 
           cd /srv/vietculture/frontend
 
