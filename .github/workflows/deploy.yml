@@ -44,16 +44,6 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
-      - name: Configure SSH
-        env:
-          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
-          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
-        run: |
-          install -d -m 700 ~/.ssh
-          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
-          chmod 600 ~/.ssh/known_hosts
 
       - name: Deploy to homelab
         env:
@@ -75,30 +65,28 @@ jobs:
 
           pm2 restart vietculture-frontend --update-env
 
-echo "Waiting for VietCulture to become ready..."
+          echo "Waiting for VietCulture to become ready..."
 
-healthy=0
+          healthy=0
 
-for i in {1..30}; do
-  if curl --fail --silent --max-time 3 \
-    http://127.0.0.1:3100/ > /dev/null; then
-    echo "VietCulture is healthy!"
-    healthy=1
-    break
-  fi
+          for i in {1..30}; do
+            if curl --fail --silent --max-time 3 \
+              http://127.0.0.1:3100/ > /dev/null 2>&1; then
+              echo "VietCulture is healthy!"
+              healthy=1
+              break
+            fi
 
-  echo "Health check $i/30 failed; retrying..."
-  sleep 2
-done
+            echo "Health check $i/30 failed; retrying..."
+            sleep 2
+          done
 
-if [ "$healthy" -ne 1 ]; then
-  echo "VietCulture failed its health check."
-  pm2 describe vietculture-frontend
-  pm2 logs vietculture-frontend --lines 50 --nostream
-  exit 1
-fi
+          if [ "$healthy" -ne 1 ]; then
+            echo "VietCulture failed its health check."
+            pm2 describe vietculture-frontend
+            pm2 logs vietculture-frontend --lines 50 --nostream
+            exit 1
+          fi
 
-echo "Deployment successful!"
-
-          echo "VietCulture deployed successfully"
+          echo "VietCulture deployed successfully!"
           REMOTE
