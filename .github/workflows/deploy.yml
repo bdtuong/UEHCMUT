@@ -1,3 +1,4 @@
+
 name: VietCulture CI/CD
 
 on:
@@ -44,6 +45,16 @@ jobs:
           oauth-secret: ${{ secrets.TS_OAUTH_SECRET }}
           tags: tag:ci
 
+      - name: Configure SSH
+        env:
+          SSH_KEY: ${{ secrets.SSH_PRIVATE_KEY }}
+          SSH_KNOWN_HOSTS: ${{ secrets.SSH_KNOWN_HOSTS }}
+        run: |
+          install -d -m 700 ~/.ssh
+          printf '%s\n' "$SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+          printf '%s\n' "$SSH_KNOWN_HOSTS" > ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
 
       - name: Deploy to homelab
         env:
@@ -55,18 +66,26 @@ jobs:
             "$SSH_USER@$SSH_HOST" 'bash -se' <<'REMOTE'
           set -euo pipefail
 
+          export NVM_DIR="$HOME/.nvm"
+          source "$NVM_DIR/nvm.sh"
+          nvm use 22
+
           cd /srv/vietculture/frontend
 
+          echo "Fetching latest code..."
           git fetch origin main
           git merge --ff-only origin/main
 
+          echo "Installing dependencies..."
           npm ci --legacy-peer-deps
+
+          echo "Building frontend..."
           npm run build
 
+          echo "Restarting PM2..."
           pm2 restart vietculture-frontend --update-env
 
-          echo "Waiting for VietCulture to become ready..."
-
+          echo "Waiting for VietCulture..."
           healthy=0
 
           for i in {1..30}; do
@@ -77,12 +96,12 @@ jobs:
               break
             fi
 
-            echo "Health check $i/30 failed; retrying..."
+            echo "Attempt $i/30: not ready"
             sleep 2
           done
 
           if [ "$healthy" -ne 1 ]; then
-            echo "VietCulture failed its health check."
+            echo "VietCulture health check failed"
             pm2 describe vietculture-frontend
             pm2 logs vietculture-frontend --lines 50 --nostream
             exit 1
